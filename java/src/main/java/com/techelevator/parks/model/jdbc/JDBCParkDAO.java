@@ -1,3 +1,4 @@
+package com.techelevator.parks.model.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,6 +6,9 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+import com.techelevator.parks.model.Park;
+import com.techelevator.parks.model.ParkDAO;
 
 public class JDBCParkDAO implements ParkDAO{
 

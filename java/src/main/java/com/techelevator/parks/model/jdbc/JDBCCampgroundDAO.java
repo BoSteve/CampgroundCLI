@@ -1,8 +1,12 @@
+package com.techelevator.parks.model.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+
+import com.techelevator.parks.model.Campground;
+import com.techelevator.parks.model.CampgroundDAO;
 
 public class JDBCCampgroundDAO implements CampgroundDAO {
 
@@ -18,7 +22,6 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 			campgroundList.add(newCamp);
 		}
 		return campgroundList;
-
 	}
 
 	@Override

@@ -1,3 +1,4 @@
+package com.techelevator.parks.model;
 import java.time.LocalDate;
 
 public class Reservation {
