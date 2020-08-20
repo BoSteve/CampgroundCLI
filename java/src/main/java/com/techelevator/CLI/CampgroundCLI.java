@@ -30,17 +30,12 @@ public class CampgroundCLI {
 	private int parkSelected = 0;
 
 	static BasicDataSource dataSource = new BasicDataSource();
-
+	private String [] allParks;
 	private JDBCParkDAO jdbcParkDAO = new JDBCParkDAO(dataSource);
-
-	private static List<String> allParks;
 
 	// Main Menu
 	// set an array with these values in it.
-	private static final String MAIN_MENU_PARK_1 = "Acadia";
-	private static final String MAIN_MENU_PARK_2 = "Arches";
-	private static final String MAIN_MENU_PARK_3 = "Cuyahoga Valley";
-	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_PARK_1, MAIN_MENU_PARK_2, MAIN_MENU_PARK_3, EXIT };
+	private static String[] MAIN_MENU_OPTIONS;
 
 	private static final String PARK_INFO_VIEW_CAMPS = "View Camp Grounds";
 	private static final String PARK_INFO_SEARCH_RESERVES = "Search for Reservations";
@@ -67,9 +62,16 @@ public class CampgroundCLI {
 		parkDAO = new JDBCParkDAO(datasource);
 		reservationDAO = new JDBCReseravtionDAO(datasource);
 		// make a seperate setter later
-		this.allParks = jdbcParkDAO.getNameByParkId();
-		System.out.println(allParks);
-		System.out.println(allParks.get(0));
+		allParksSetter();
+	}
+
+	private void allParksSetter() {
+		this.allParks = new String[jdbcParkDAO.getNameByParkId().size()+1];
+		jdbcParkDAO.getNameByParkId().toArray(allParks);
+		allParks[jdbcParkDAO.getNameByParkId().size()] = "EXIT";
+		System.out.println(allParks[0]);
+		System.out.println(allParks[3]);
+		this.MAIN_MENU_OPTIONS = allParks;
 	}
 
 	private void run() {
@@ -78,19 +80,20 @@ public class CampgroundCLI {
 		System.out.println("SELECT A PARK");
 		while (true) {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
-			if (choice.equals(MAIN_MENU_PARK_1)) {
+			if (choice.equals(allParks[0])) {
 				parkSelected = 1;
-				handleGetAllParksByName(MAIN_MENU_PARK_1);
+				handleGetAllParksByName(allParks[0]);
 				displayParkInfo();
-			} else if (choice.equals(MAIN_MENU_PARK_2)) {
+			} else if (choice.equals(allParks[1])) {
 				parkSelected = 2;
-				handleGetAllParksByName(MAIN_MENU_PARK_2);
+				handleGetAllParksByName(allParks[1]);
 				displayParkInfo();
-			} else if (choice.equals(MAIN_MENU_PARK_3)) {
-				handleGetAllParksByName(MAIN_MENU_PARK_3);
+			} else if (choice.equals(allParks[2])) {
+				handleGetAllParksByName(allParks[2]);
 				parkSelected = 3;
 				displayParkInfo();
 			} else if (choice.equals(EXIT)) {
+				System.out.println("Have a nice trip!");
 				System.exit(0);
 			}
 		}
