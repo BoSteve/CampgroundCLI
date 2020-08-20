@@ -29,7 +29,6 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 			Reservation newReservation = rowFromReservation(sqlReservation);
 			reservationList.add(newReservation);
 		}
-		
 		return reservationList;
 	}
 		
