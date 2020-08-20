@@ -36,10 +36,10 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 
 	private Reservation rowFromReservation(SqlRowSet sqlReservation) {
 		Reservation reservationRow = new Reservation();
-		reservationRow.setNameOfReservation(sqlReservation.getString("nameOfReservation"));
-		reservationRow.setStartDate(sqlReservation.getDate("startDate").toLocalDate());
-		reservationRow.setEndDate(sqlReservation.getDate("endDate").toLocalDate());
-		reservationRow.setConfirmationId(sqlReservation.getLong("confirmationId"));
+		reservationRow.setNameOfReservation(sqlReservation.getString("name"));
+		reservationRow.setStartDate(sqlReservation.getDate("from_date").toLocalDate());
+		reservationRow.setEndDate(sqlReservation.getDate("to_date").toLocalDate());
+		reservationRow.setConfirmationId(sqlReservation.getLong("reservation_id"));
 		
 		
 		return reservationRow;

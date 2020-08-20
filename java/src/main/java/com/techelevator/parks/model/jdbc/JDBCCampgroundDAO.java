@@ -45,11 +45,11 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 
 	private Campground rowFromCampground(SqlRowSet sqlCamp) {
 		Campground newCampGround = new Campground();
-		newCampGround.setId(sqlCamp.getLong("id"));
-		newCampGround.setNameOfCampground(sqlCamp.getString("nameOfCampGround"));
-		newCampGround.setOpenMonth(sqlCamp.getString("openMonth"));
-		newCampGround.setCloseMonth(sqlCamp.getString("closeMonth"));
-		newCampGround.setDailyFee(sqlCamp.getBigDecimal("dailyFee"));
+		newCampGround.setId(sqlCamp.getLong("campground_id"));
+		newCampGround.setNameOfCampground(sqlCamp.getString("name"));
+		newCampGround.setOpenMonth(sqlCamp.getString("open_from_mm"));
+		newCampGround.setCloseMonth(sqlCamp.getString("open_to_mm"));
+		newCampGround.setDailyFee(sqlCamp.getBigDecimal("daily_fee"));
 
 		return newCampGround;
 	}

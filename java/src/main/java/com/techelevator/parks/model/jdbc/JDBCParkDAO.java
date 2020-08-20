@@ -60,5 +60,13 @@ public class JDBCParkDAO implements ParkDAO{
 		}
 		return null;
 	
+	}
+
+	//Might have to come back to this: 
+	
+	@Override
+	public void getParkName(Park parkName) {
+		// TODO Auto-generated method stub
+		
 	}	
 }
