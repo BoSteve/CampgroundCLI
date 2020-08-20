@@ -33,12 +33,12 @@ public class JDBCParkDAO implements ParkDAO{
 
 	private Park rowFromPark(SqlRowSet sqlPark) {
 		Park newPark = new Park();
-		newPark.setId(sqlPark.getLong("id"));
-		newPark.setParkName(sqlPark.getString("parkName"));
-		newPark.setParkLocation(sqlPark.getString("parkLocation"));
-		newPark.setEstablishedYear(sqlPark.getDate("establishedYear").toLocalDate());
+		newPark.setId(sqlPark.getLong("park_id"));
+		newPark.setParkName(sqlPark.getString("name"));
+		newPark.setParkLocation(sqlPark.getString("location"));
+		newPark.setEstablishedYear(sqlPark.getDate("establish_date").toLocalDate());
 		newPark.setArea(sqlPark.getLong("area"));
-		newPark.setAnnualVisitors(sqlPark.getLong("annualVisitors"));
+		newPark.setAnnualVisitors(sqlPark.getLong("visitors"));
 		newPark.setDescription(sqlPark.getString("description"));
 		
 		return newPark;

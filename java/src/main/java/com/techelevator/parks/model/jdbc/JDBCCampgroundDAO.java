@@ -2,6 +2,8 @@ package com.techelevator.parks.model.jdbc;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
@@ -11,6 +13,10 @@ import com.techelevator.parks.model.CampgroundDAO;
 public class JDBCCampgroundDAO implements CampgroundDAO {
 
 	private JdbcTemplate jdbcTemplate;
+	
+	public JDBCCampgroundDAO (DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);
+	}
 
 	@Override
 	public List<Campground> getAllCampgrounds() {
