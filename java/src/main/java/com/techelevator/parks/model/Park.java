@@ -55,6 +55,4 @@ public class Park {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-	
 }

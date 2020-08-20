@@ -6,10 +6,10 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 
+import com.techelevator.parks.model.Campground;
 import com.techelevator.parks.model.CampgroundDAO;
 import com.techelevator.parks.model.Park;
 import com.techelevator.parks.model.ParkDAO;
-import com.techelevator.parks.model.Reservation;
 import com.techelevator.parks.model.ReservationDAO;
 import com.techelevator.parks.model.jdbc.JDBCCampgroundDAO;
 import com.techelevator.parks.model.jdbc.JDBCParkDAO;
@@ -23,15 +23,18 @@ public class CampgroundCLI {
 
 	private Menu menu;
 	private CampgroundDAO campgroundDAO;
-	private ParkDAO parkDAO;
+	private static ParkDAO parkDAO;
 	private ReservationDAO reservationDAO;
+	
+	private JDBCParkDAO jdbcParkDAO;
 
 	static BasicDataSource dataSource = new BasicDataSource();
-
+	
 	// Main Menu
+	//set these to dynamic values--get park by ID
 	private static final String MAIN_MENU_PARK_1 = "Acadia";
 	private static final String MAIN_MENU_PARK_2 = "Arches";
-	private static final String MAIN_MENU_PARK_3 = "Cuyahoga National Valley Park";
+	private static final String MAIN_MENU_PARK_3 = "Cuyahoga Valley";
 	private static final String[] MAIN_MENU_OPTIONS = { MAIN_MENU_PARK_1, MAIN_MENU_PARK_2, MAIN_MENU_PARK_3, EXIT };
 
 	private static final String PARK_INFO_VIEW_CAMPS = "View Camp Grounds";
@@ -58,6 +61,8 @@ public class CampgroundCLI {
 		campgroundDAO = new JDBCCampgroundDAO(datasource);
 		parkDAO = new JDBCParkDAO(datasource);
 		reservationDAO = new JDBCReseravtionDAO(datasource);
+		List<String> allParks = jdbcParkDAO.getNameByParkId();
+		System.out.println(allParks);
 	}
 
 	private void run() {
@@ -67,16 +72,34 @@ public class CampgroundCLI {
 		while (true) {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if (choice.equals(MAIN_MENU_PARK_1)) {
-				handleGetAllParks();
+				handleGetAllParksByName(MAIN_MENU_PARK_1);
 				displayParkInfo();
 			} else if (choice.equals(MAIN_MENU_PARK_2)) {
+				handleGetAllParksByName(MAIN_MENU_PARK_2);
 				displayParkInfo();
 			} else if (choice.equals(MAIN_MENU_PARK_3)) {
+				handleGetAllParksByName(MAIN_MENU_PARK_3);
 				displayParkInfo();
 			} else if (choice.equals(EXIT)) {
 				System.exit(0);
 			}
 		}
+	}
+	
+	//Change this to get by name
+	private void handleGetAllParksByName(String parkName) {
+		Park allParks = parkDAO.getParkName(parkName);
+		listParkInfo(allParks);
+	}
+	private void listParkInfo(Park parks) {
+		System.out.println();
+				System.out.println(parks.getParkName()
+						+ ", " + parks.getParkLocation()
+						+ "\nEST. " + parks.getEstablishedYear()
+						+ "\nAREA (sq/km): " + parks.getArea()
+						+ "\nAnnual Visitors: " + parks.getAnnualVisitors()
+						+ "\nDESCRIPTION:\n " + parks.getDescription()
+						);
 	}
 
 	// Park Info //
@@ -84,7 +107,7 @@ public class CampgroundCLI {
 	private void displayParkInfo() {
 		String choice = (String) menu.getChoiceFromOptions(PARK_INFO_OPTIONS);
 		if (choice.equals(PARK_INFO_VIEW_CAMPS)) {
-			handleGetAllParks();
+			handleGetAllCamps();
 			displayParkCamps();
 		} else if (choice.equals(PARK_INFO_SEARCH_RESERVES)) {
 			displayParkCampsReservation();
@@ -94,22 +117,17 @@ public class CampgroundCLI {
 			System.exit(0);
 		}
 	}
-
-	private void handleGetAllParks() {
-		List<Park> allParks = parkDAO.getAllParks();
-		listAllParks(allParks);
+	
+	//Change this to get by name
+	private void handleGetAllCamps() {
+		List<Campground> allCampgrounds = campgroundDAO.getAllCampgrounds();
+		listAllCamps(allCampgrounds);
 	}
-	private void listAllParks(List<Park> parks) {
+	private void listAllCamps(List<Campground> Campgrounds) {
 		System.out.println();
-		if(parks.size() > 0) {
-			for(Park park : parks) {
-				System.out.println(park.getParkName() 
-						+ ", " + park.getParkLocation()
-						+ "\nEST. " + park.getEstablishedYear()
-						+ "\nAREA (sq/km): " + park.getArea()
-						+ "\nAnnual Visitors: " + park.getAnnualVisitors()
-						+ "\nDESCRIPTION:\n " + park.getDescription()
-						);
+		if(Campgrounds.size() > 0) {
+			for(Campground Campground : Campgrounds) {
+				System.out.println(Campground.getNameOfCampground());
 			}
 		} else {
 			System.out.println("\n*** No results ***");
@@ -153,5 +171,4 @@ public class CampgroundCLI {
 		}
 		System.out.println();
 	}
-
 }

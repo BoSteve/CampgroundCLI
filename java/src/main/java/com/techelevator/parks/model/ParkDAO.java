@@ -10,6 +10,7 @@ public interface ParkDAO {
 //************  BONUS ****** COME BACK TO THIS, MAYBE?	 **********************************
 //	public void savePark(Park updateParks);
 	public Park getParkId(Long id);
-	
-	public Park getParkName(Park parkName);
+	public Park getParkName(String parkName);
+	public List<String> getNameByParkId();
+
 }
