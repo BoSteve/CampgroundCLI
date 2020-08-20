@@ -65,8 +65,12 @@ public class JDBCParkDAO implements ParkDAO{
 	//Might have to come back to this: 
 	
 	@Override
-	public void getParkName(Park parkName) {
-		// TODO Auto-generated method stub
+	public Park getParkName(Park parkName) {
+		String sqlGetParkName = "SELECT name FROM park WHERE name = ?";
+		SqlRowSet sqlParkName = jdbcTemplate.queryForRowSet(sqlGetParkName, parkName);
 		
-	}	
+		sqlParkName.next();
+			Park newPark = rowFromPark(sqlParkName);
+		return newPark;
+	}		
 }

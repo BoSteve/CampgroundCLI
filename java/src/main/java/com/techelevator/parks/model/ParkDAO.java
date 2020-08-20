@@ -11,5 +11,5 @@ public interface ParkDAO {
 //	public void savePark(Park updateParks);
 	public Park getParkId(Long id);
 	
-	public void getParkName(Park parkName);
+	public Park getParkName(Park parkName);
 }
