@@ -5,5 +5,5 @@ public interface CampgroundDAO {
 
 	public List<Campground> getAllCampgrounds();
 	
-	public Campground getCampgroundById(Long id);
+	public List<Campground> getAllCampgroundsByParkId(int parkId);
 }

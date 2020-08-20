@@ -31,15 +31,15 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 	}
 
 	@Override
-	public Campground getCampgroundById(Long id) {
-		ArrayList<Campground> campIdList = new ArrayList<Campground>();
+	public List<Campground> getAllCampgroundsByParkId(int parkId) {
+		List<Campground> campIdList = new ArrayList<Campground>();
 		String sqlCampId = "SELECT * FROM campground WHERE park_id = ?";
-		SqlRowSet sqlCampIdRow = jdbcTemplate.queryForRowSet(sqlCampId, id);
+		SqlRowSet sqlCampIdRow = jdbcTemplate.queryForRowSet(sqlCampId, parkId);
 		while (sqlCampIdRow.next()) {
 			Campground newCamp = rowFromCampground(sqlCampIdRow);
 			campIdList.add(newCamp);
 		}
-		return null;
+		return campIdList;
 
 	}
 

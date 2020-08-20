@@ -25,11 +25,14 @@ public class CampgroundCLI {
 	private CampgroundDAO campgroundDAO;
 	private static ParkDAO parkDAO;
 	private ReservationDAO reservationDAO;
-	
-	private JDBCParkDAO jdbcParkDAO;
+	private int parkSelected = 0;
 
 	static BasicDataSource dataSource = new BasicDataSource();
 	
+	private JDBCParkDAO jdbcParkDAO = new JDBCParkDAO(dataSource);
+	
+	private static List<String> allParks;
+		
 	// Main Menu
 	//set these to dynamic values--get park by ID
 	private static final String MAIN_MENU_PARK_1 = "Acadia";
@@ -61,8 +64,10 @@ public class CampgroundCLI {
 		campgroundDAO = new JDBCCampgroundDAO(datasource);
 		parkDAO = new JDBCParkDAO(datasource);
 		reservationDAO = new JDBCReseravtionDAO(datasource);
-		List<String> allParks = jdbcParkDAO.getNameByParkId();
+		//make a seperate setter later
+		this.allParks =  jdbcParkDAO.getNameByParkId();
 		System.out.println(allParks);
+		System.out.println(allParks.get(0));
 	}
 
 	private void run() {
@@ -72,13 +77,16 @@ public class CampgroundCLI {
 		while (true) {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if (choice.equals(MAIN_MENU_PARK_1)) {
+				parkSelected = 1;
 				handleGetAllParksByName(MAIN_MENU_PARK_1);
 				displayParkInfo();
 			} else if (choice.equals(MAIN_MENU_PARK_2)) {
+				parkSelected = 2;
 				handleGetAllParksByName(MAIN_MENU_PARK_2);
 				displayParkInfo();
 			} else if (choice.equals(MAIN_MENU_PARK_3)) {
 				handleGetAllParksByName(MAIN_MENU_PARK_3);
+				parkSelected = 3;
 				displayParkInfo();
 			} else if (choice.equals(EXIT)) {
 				System.exit(0);
@@ -99,7 +107,7 @@ public class CampgroundCLI {
 						+ "\nAREA (sq/km): " + parks.getArea()
 						+ "\nAnnual Visitors: " + parks.getAnnualVisitors()
 						+ "\nDESCRIPTION:\n " + parks.getDescription()
-						);
+			);
 	}
 
 	// Park Info //
@@ -120,24 +128,29 @@ public class CampgroundCLI {
 	
 	//Change this to get by name
 	private void handleGetAllCamps() {
-		List<Campground> allCampgrounds = campgroundDAO.getAllCampgrounds();
+		List<Campground> allCampgrounds = campgroundDAO.getAllCampgroundsByParkId(parkSelected);
 		listAllCamps(allCampgrounds);
 	}
 	private void listAllCamps(List<Campground> Campgrounds) {
 		System.out.println();
 		if(Campgrounds.size() > 0) {
 			for(Campground Campground : Campgrounds) {
-				System.out.println(Campground.getNameOfCampground());
+				System.out.println(
+						"Name: "+Campground.getNameOfCampground() + "\n"
+						+"Open Months: "+Campground.getOpenMonth() + " until " + Campground.getCloseMonth() 
+						+"\n$" + Campground.getDailyFee() +"/Day\n"
+						);
 			}
 		} else {
 			System.out.println("\n*** No results ***");
 		}
 	}
 
-	// Park Campgrounds
+	// Park Campgrounds	//
 
 	private void displayParkCamps() {
 		String choice = (String) menu.getChoiceFromOptions(PARK_CAMPS_OPTIONS);
+		handleGetAllCamps();
 		if (choice.equals(PARK_CAMPS_AVAILABLE)) {
 			displayParkCampsReservation();
 		} else if (choice.equals(RETURN)) {
@@ -164,11 +177,4 @@ public class CampgroundCLI {
 		}
 	}
 
-	private void printHeading(String headingText) {
-		System.out.println("\n" + headingText);
-		for (int i = 0; i < headingText.length(); i++) {
-			System.out.print("-");
-		}
-		System.out.println();
-	}
 }

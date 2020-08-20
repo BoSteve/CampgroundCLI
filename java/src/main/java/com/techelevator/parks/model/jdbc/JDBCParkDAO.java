@@ -64,6 +64,7 @@ public class JDBCParkDAO implements ParkDAO{
 	@Override
 	public List<String> getNameByParkId() {
 		List<String> results = new ArrayList<String>();
+		
 		String sql = "Select * from park WHERE park_id <= 5";
 		SqlRowSet sqlNameId = jdbcTemplate.queryForRowSet(sql);
 		while(sqlNameId.next()) {
@@ -71,7 +72,6 @@ public class JDBCParkDAO implements ParkDAO{
 			results.add(newPark.getParkName());
 		}
 		return results;
-
 	}
 	
 	//Might have to come back to this: 
