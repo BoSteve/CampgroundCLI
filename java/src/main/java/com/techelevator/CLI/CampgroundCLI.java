@@ -35,7 +35,7 @@ public class CampgroundCLI {
 	private int parkSelected = 0;
 
 	static BasicDataSource dataSource = new BasicDataSource();
-	private String [] allParks;
+	private String[] allParks;
 	private JDBCParkDAO jdbcParkDAO = new JDBCParkDAO(dataSource);
 
 	// Main Menu
@@ -69,12 +69,10 @@ public class CampgroundCLI {
 		siteDAO = new JDBCSiteDAO(datasource);
 		// make a seperate setter later
 		allParksSetter();
-		System.out.println(siteDAO.getSiteInfoByCampName("Blackwoods").get(4).getSiteId());
-
 	}
 
 	private void allParksSetter() {
-		this.allParks = new String[jdbcParkDAO.getNameByParkId().size()+1];
+		this.allParks = new String[jdbcParkDAO.getNameByParkId().size() + 1];
 		jdbcParkDAO.getNameByParkId().toArray(allParks);
 		allParks[jdbcParkDAO.getNameByParkId().size()] = "EXIT";
 		System.out.println(allParks[0]);
@@ -172,43 +170,62 @@ public class CampgroundCLI {
 	private String arrivalSelect = "";
 	private String departureSelect = "";
 
+	// Change this to get by name //
+	
+	private void handleGetAllSites() {
+		List<Site> allSites = siteDAO.getSiteInfoByCampName("Blackwood");
+		listAllSites(allSites);
+	}
+
+	private void listAllSites(List<Site> Campgrounds) {
+		System.out.println();
+		if (Campgrounds.size() > 0) {
+			for (Site Campground : Campgrounds) {
+				System.out.println("Hello");
+			}
+		} else {
+			System.out.println("\n*** No results ***");
+		}
+	}
+
 	private void displayParkCampsReservation() {
 		System.out.print("Enter campground number>>>");
 		Scanner scan = new Scanner(System.in);
 		String campgroundSelect = scan.nextLine();
 //		System.out.println(campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect)-1).getNameOfCampground());
+		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect) - 1)
+				.getNameOfCampground();
+		System.out.println("Campgrounds: " + camp);
+		handleGetAllSites();
 		
-		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect)-1).getNameOfCampground();
-		System.out.println("name " + camp);
-		System.out.println(siteDAO.getSiteInfoByCampName(camp).get(0).getCampgroundId());
 		try {
 			List<Site> sites = siteDAO.getSiteInfoByCampName(campgroundSelect);
-				for (Site Campground : sites) {
-					System.out.println(siteDAO.getSiteInfoByCampName("Blackwoods"));
-				}
+			for (Site Campground : sites) {
+				System.out.println(siteDAO.getSiteInfoByCampName("Blackwoods"));
+			}
 		} catch (Exception e) {
 			System.out.println("INVALED INPUT!!! RETURNING TO RESERVATION SCREEN");
 			displayParkCamps();
 		}
-		
+
 		// Scans userinput, selects campground by number,
 		// retrieve site_info by campground_id
 		System.out.println("Enter Arrival date: MM/DD/YYYY");
 		String arrivalSelect = scan.nextLine();
-		//plug arrival date into reservation
+		// plug arrival date into reservation
 		System.out.println("Departure: __/__/__?");
 		String departureSelect = scan.nextLine();
-		//plug departure date into reservation
-		
+		// plug departure date into reservation
+
 		// DISPLAY OPTIONS HERE.
 		System.out.println("Select site to reserve");
 		String siteReserved = scan.nextLine();
-		//plug siteReserved into site_id
+		// plug siteReserved into site_id
 		System.out.println("Name for reservation?");
 		String nameOfReservation = scan.nextLine();
-		//plug nameOfReservation into reservation_name
+		// plug nameOfReservation into reservation_name
 		System.out.println("RESERVATION ID");
-		//return the reservation_id
+		// return the reservation_id
 
 		String choice = (String) menu.getChoiceFromOptions(RESERVATION_COMPLETED_OPTIONS);
 		if (choice.equals(RESERVE_AGAIN)) {
