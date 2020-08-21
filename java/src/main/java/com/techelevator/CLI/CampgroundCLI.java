@@ -109,10 +109,9 @@ public class CampgroundCLI {
 	private void listParkInfo(Park parks) {
 		System.out.println(parks.getParkName() + ", " + parks.getParkLocation() + "\nEST.\t\t" + parks.getEstablishedYear()
 				+ "\nAREA:\t\t" + parks.getArea() + "sqr kilometers\n" + "Visitors/yr:\t" + parks.getAnnualVisitors()
-				+ "\nDESCRIPTION:\n" + parks.getDescription());
+				+ "\n\nDESCRIPTION:\n" + parks.getDescription());
+		//make the description visually appealing
 	}
-
-	// Park Info //
 
 	private void displayParkInfo() {
 		String choice = (String) menu.getChoiceFromOptions(PARK_INFO_OPTIONS);
@@ -135,9 +134,10 @@ public class CampgroundCLI {
 	}
 
 	private void listAllCamps(List<Campground> Campgrounds) {
-		System.out.println();
+		int counter =0;
 		if (Campgrounds.size() > 0) {
 			for (Campground Campground : Campgrounds) {
+				System.out.println("Campground:" + ++counter);
 				System.out.println(
 						"Name: " + Campground.getNameOfCampground() + "\n" + "Open Months: " + Campground.getOpenMonth()
 								+ " until " + Campground.getCloseMonth() + "\n$" + Campground.getDailyFee() + "/Day\n");
@@ -171,9 +171,10 @@ public class CampgroundCLI {
 		String campgroundSelect = scan.nextLine();
 		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect) - 1)
 				.getNameOfCampground();
-		System.out.println("Campgrounds: " + camp);
-		handleGetAllSitesEmpty(camp);
+		System.out.println("Campgrounds: " + camp);		
 		handleGetAllSites(camp);
+		handleGetAllSitesEmpty(camp);
+
 		
 		try {
 			List<Site> sites = siteDAO.getSiteInfoByCampName(campgroundSelect);
@@ -229,12 +230,12 @@ public class CampgroundCLI {
 	private void listAllSites(List<Site> inputSite) {
 		if (inputSite.size() > 0) {
 			for (Site sites : inputSite) {
-				System.out.println("Site No. " + sites.getSiteNumber() + " Max Occup. " + sites.getMaxOccupancy()
+				System.out.println("Site Id. " + sites.getSiteId()+" Site No. " + sites.getSiteNumber() + " Max Occup. " + sites.getMaxOccupancy()
 						+ " Accessible? " + sites.isItAccessible() + " Max RV Length " + sites.getMaxRvLength()
 						+ " Utilities? " + sites.isUtilities());
 			}
 		} else {
-			System.out.println("\n*** No results ***");
+			System.out.println("");
 		}
 	}
 
