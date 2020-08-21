@@ -27,32 +27,26 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 	@Override
 	public List<Site> dateToSet(LocalDate arrival, LocalDate departure, Long id) {
 		List<Site> results = new ArrayList<Site>();
+		
 		Set <LocalDate> dates = new HashSet<LocalDate>();
 		dates.add(arrival);
 		dates.add(departure);
 		
 		Set <Long> ids = new HashSet<Long>();
-		ids.add(id);
+		ids.add(1L);
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("dates", dates);
 		parameters.addValue("ids", ids);
 		
-		String sql = "SELECT * FROM site where campground_id = (:ids) AND site_id " +
+		String sql = "SELECT * FROM site where campground_id = ( :ids ) AND site_id " +
 		"NOT IN (SELECT site_id FROM reservation WHERE (from_date, to_date) OVERLAPS ( :dates ))"
 		+ "LIMIT 10";
 		
 		SqlRowSet rowset = jdbcSpecial.queryForRowSet(sql, parameters);
 		
 		while (rowset.next()) {
-			Site newSite = new Site();
-			newSite.setSiteId(rowset.getLong("site_id"));
-			newSite.setSiteNumber(rowset.getInt("site_number"));
-			newSite.setMaxOccupancy(rowset.getInt("max_occupancy"));
-			newSite.setItAccessible(rowset.getBoolean("accessible"));
-			newSite.setMaxRvLength(rowset.getInt("max_rv_length"));
-			newSite.setUtilities(rowset.getBoolean("utilities"));
-			
+			Site newSite = rowFromSite(rowset);
 			results.add(newSite);
 		}
 		return results;

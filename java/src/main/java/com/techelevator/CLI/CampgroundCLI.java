@@ -156,13 +156,9 @@ public class CampgroundCLI {
 		String departureSelect = scan.nextLine();
 		System.out.println("Selected Departure: "+ reservationDAO.stringToDateToSQL(departureSelect));
 		
-		listAllSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
+		listNonOverlapSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
 				reservationDAO.stringToDateToSQL(departureSelect), 
 				campgroundDAO.getCampgroundIdByName(campgroundSelect)));
-		
-		System.out.println(listAllSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
-				reservationDAO.stringToDateToSQL(departureSelect), 
-				campgroundDAO.getCampgroundIdByName(campgroundSelect))));
 		// plug departure date into reservation
 
 		System.out.println("\nSelect site to reserve by site ID >>>");
@@ -191,6 +187,17 @@ public class CampgroundCLI {
 		List<Site> allSites = siteDAO.getSiteInfoByCampNameEmpty(input);
 		listAllSites(allSites);
 	}
+	
+	
+	private void listNonOverlapSites (List<Site> inputSite) {
+		String result = "";
+		for (Site sites : inputSite) {				
+			result = "Site Id. " + sites.getSiteId()+" Site No. " + sites.getSiteNumber() + " Max Occup. " + sites.getMaxOccupancy()
+			+ " Accessible? " + sites.isItAccessible() + " Max RV Length " + sites.getMaxRvLength()
+			+ " Utilities? " + sites.isUtilities();
+			System.out.println(result);
+		}
+	}
 
 	private String listAllSites(List<Site> inputSite) {
 		String result ="";
@@ -202,7 +209,7 @@ public class CampgroundCLI {
 				System.out.println(result);
 			}
 		} else {
-			System.out.println("");
+			System.out.println("ERROR");
 		}
 		return result;
 	}

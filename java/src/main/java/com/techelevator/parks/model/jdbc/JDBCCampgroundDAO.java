@@ -41,8 +41,8 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 
 	}
 	@Override
-	public long getCampgroundIdByName(String campName) {
-		long result = 0;
+	public Long getCampgroundIdByName(String campName) {
+		Long result = null;
 		String sql = "SELECT campground_id FROM campground WHERE name = ?";
 		SqlRowSet sqlrowset = jdbcTemplate.queryForRowSet(sql, campName);
 		while (sqlrowset.next()) {
