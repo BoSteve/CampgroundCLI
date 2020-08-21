@@ -1,7 +1,5 @@
 package com.techelevator.CLI;
 
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -75,8 +73,6 @@ public class CampgroundCLI {
 		this.allParks = new String[jdbcParkDAO.getNameByParkId().size() + 1];
 		jdbcParkDAO.getNameByParkId().toArray(allParks);
 		allParks[jdbcParkDAO.getNameByParkId().size()] = "EXIT";
-		System.out.println(allParks[0]);
-		System.out.println(allParks[3]);
 		this.MAIN_MENU_OPTIONS = allParks;
 	}
 
@@ -87,6 +83,7 @@ public class CampgroundCLI {
 		while (true) {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if (choice.equals(allParks[0])) {
+				//try to make this not hardcoded
 				parkSelected = 1;
 				handleGetAllParksByName(allParks[0]);
 				displayParkInfo();
@@ -105,17 +102,14 @@ public class CampgroundCLI {
 		}
 	}
 
-	// Change this to get by name
 	private void handleGetAllParksByName(String parkName) {
 		Park allParks = parkDAO.getParkName(parkName);
 		listParkInfo(allParks);
 	}
-
 	private void listParkInfo(Park parks) {
-		System.out.println();
-		System.out.println(parks.getParkName() + ", " + parks.getParkLocation() + "\nEST. " + parks.getEstablishedYear()
-				+ "\nAREA (sq/km): " + parks.getArea() + "\nAnnual Visitors: " + parks.getAnnualVisitors()
-				+ "\nDESCRIPTION:\n " + parks.getDescription());
+		System.out.println(parks.getParkName() + ", " + parks.getParkLocation() + "\nEST.\t\t" + parks.getEstablishedYear()
+				+ "\nAREA:\t\t" + parks.getArea() + "sqr kilometers\n" + "Visitors/yr:\t" + parks.getAnnualVisitors()
+				+ "\nDESCRIPTION:\n" + parks.getDescription());
 	}
 
 	// Park Info //
@@ -170,33 +164,16 @@ public class CampgroundCLI {
 	private String arrivalSelect = "";
 	private String departureSelect = "";
 
-	// Change this to get by name //
-	
-	private void handleGetAllSites() {
-		List<Site> allSites = siteDAO.getSiteInfoByCampName("Blackwood");
-		listAllSites(allSites);
-	}
-
-	private void listAllSites(List<Site> Campgrounds) {
-		System.out.println();
-		if (Campgrounds.size() > 0) {
-			for (Site Campground : Campgrounds) {
-				System.out.println("Hello");
-			}
-		} else {
-			System.out.println("\n*** No results ***");
-		}
-	}
 
 	private void displayParkCampsReservation() {
 		System.out.print("Enter campground number>>>");
 		Scanner scan = new Scanner(System.in);
 		String campgroundSelect = scan.nextLine();
-//		System.out.println(campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect)-1).getNameOfCampground());
 		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect) - 1)
 				.getNameOfCampground();
 		System.out.println("Campgrounds: " + camp);
-		handleGetAllSites();
+		handleGetAllSitesEmpty(camp);
+		handleGetAllSites(camp);
 		
 		try {
 			List<Site> sites = siteDAO.getSiteInfoByCampName(campgroundSelect);
@@ -207,7 +184,9 @@ public class CampgroundCLI {
 			System.out.println("INVALED INPUT!!! RETURNING TO RESERVATION SCREEN");
 			displayParkCamps();
 		}
-
+		
+		
+		
 		// Scans userinput, selects campground by number,
 		// retrieve site_info by campground_id
 		System.out.println("Enter Arrival date: MM/DD/YYYY");
@@ -232,6 +211,30 @@ public class CampgroundCLI {
 			run();
 		} else if (choice.equals(EXIT)) {
 			System.exit(0);
+		}
+	}
+	
+
+	private void handleGetAllSites(String input) {
+		System.out.println("\nSites by Popularity");
+		List<Site> allSites = siteDAO.getSiteInfoByCampName(input);
+		listAllSites(allSites);
+	}
+	
+	private void handleGetAllSitesEmpty(String input) {
+		List<Site> allSites = siteDAO.getSiteInfoByCampNameEmpty(input);
+		listAllSites(allSites);
+	}
+
+	private void listAllSites(List<Site> inputSite) {
+		if (inputSite.size() > 0) {
+			for (Site sites : inputSite) {
+				System.out.println("Site No. " + sites.getSiteNumber() + " Max Occup. " + sites.getMaxOccupancy()
+						+ " Accessible? " + sites.isItAccessible() + " Max RV Length " + sites.getMaxRvLength()
+						+ " Utilities? " + sites.isUtilities());
+			}
+		} else {
+			System.out.println("\n*** No results ***");
 		}
 	}
 

@@ -1,13 +1,11 @@
 package com.techelevator.parks.model.jdbc;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.sql.DataSource;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-
 import com.techelevator.parks.model.Reservation;
 import com.techelevator.parks.model.ReservationDAO;
 

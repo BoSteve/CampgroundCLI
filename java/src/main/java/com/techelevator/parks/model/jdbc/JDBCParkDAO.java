@@ -1,12 +1,10 @@
 package com.techelevator.parks.model.jdbc;
+
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.sql.DataSource;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-
 import com.techelevator.parks.model.Park;
 import com.techelevator.parks.model.ParkDAO;
 
@@ -18,19 +16,7 @@ public class JDBCParkDAO implements ParkDAO{
 	public JDBCParkDAO (DataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
-
-	@Override
-	public List<Park> getAllParks() {
-		ArrayList<Park> parkList = new ArrayList<Park>();
-		String sqlGetPark = "SELECT * FROM park";
-		SqlRowSet sqlPark = jdbcTemplate.queryForRowSet(sqlGetPark);
-		while (sqlPark.next()) {
-			Park newPark = rowFromPark(sqlPark);
-			parkList.add(newPark);
-		}
-		return parkList;
-	}
-
+	
 	private Park rowFromPark(SqlRowSet sqlPark) {
 		Park newPark = new Park();
 		newPark.setId(sqlPark.getLong("park_id"));
@@ -43,11 +29,18 @@ public class JDBCParkDAO implements ParkDAO{
 		
 		return newPark;
 	}
-
-//	@Override
-//	public Park getParkName(String parkName) {
-//		return null;
-//	}
+	
+	@Override
+	public List<Park> getAllParks() {
+		ArrayList<Park> parkList = new ArrayList<Park>();
+		String sqlGetPark = "SELECT * FROM park";
+		SqlRowSet sqlPark = jdbcTemplate.queryForRowSet(sqlGetPark);
+		while (sqlPark.next()) {
+			Park newPark = rowFromPark(sqlPark);
+			parkList.add(newPark);
+		}
+		return parkList;
+	}
 
 	@Override
 	public Park getParkId(Long id) {
@@ -73,8 +66,6 @@ public class JDBCParkDAO implements ParkDAO{
 		}
 		return results;
 	}
-	
-	//Might have to come back to this: 
 	
 	@Override
 	public Park getParkName(String parkName) {
