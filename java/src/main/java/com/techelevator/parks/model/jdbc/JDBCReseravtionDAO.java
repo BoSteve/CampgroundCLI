@@ -5,18 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import com.techelevator.parks.model.Reservation;
 import com.techelevator.parks.model.ReservationDAO;
 
 public class JDBCReseravtionDAO implements ReservationDAO {
 
-	
 	private JdbcTemplate jdbcTemplate;
 	
 	public JDBCReseravtionDAO (DataSource dataSource) {
 		this.jdbcTemplate = new JdbcTemplate(dataSource);
 	}
+	
 
 	@Override
 	public List<Reservation> getAllReservations() {

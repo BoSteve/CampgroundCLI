@@ -22,7 +22,6 @@ import com.techelevator.view.Menu;
 
 public class CampgroundCLI {
 
-
 	private Menu menu;
 	private JDBCParkDAO jdbcParkDAO = new JDBCParkDAO(dataSource);
 	static BasicDataSource dataSource = new BasicDataSource();
@@ -35,7 +34,6 @@ public class CampgroundCLI {
 	private int parkSelected = 0;
 	private String[] allParks;
 	
-
 	private static String[] MAIN_MENU_OPTIONS;
 	private static final String RETURN = "Go back";
 	private static final String EXIT = "Exit";
@@ -59,7 +57,6 @@ public class CampgroundCLI {
 		parkDAO = new JDBCParkDAO(datasource);
 		reservationDAO = new JDBCReseravtionDAO(datasource);
 		siteDAO = new JDBCSiteDAO(datasource);
-		// make a seperate setter later
 		allParksSetter();
 	}
 
@@ -77,18 +74,17 @@ public class CampgroundCLI {
 		while (true) {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if (choice.equals(allParks[0])) {
-				//try to make this not hardcoded
 				parkSelected = 1;
 				handleGetAllParksByName(allParks[0]);
-				displayParkInfo();
+				displayParkInfoMenu();
 			} else if (choice.equals(allParks[1])) {
 				parkSelected = 2;
 				handleGetAllParksByName(allParks[1]);
-				displayParkInfo();
+				displayParkInfoMenu();
 			} else if (choice.equals(allParks[2])) {
 				handleGetAllParksByName(allParks[2]);
 				parkSelected = 3;
-				displayParkInfo();
+				displayParkInfoMenu();
 			} else if (choice.equals(EXIT)) {
 				System.out.println("Have a nice trip!");
 				System.exit(0);
@@ -101,17 +97,17 @@ public class CampgroundCLI {
 		listParkInfo(allParks);
 	}
 	private void listParkInfo(Park parks) {
-		System.out.println(parks.getParkName() + ", " + parks.getParkLocation() + "\nEST.\t\t" + parks.getEstablishedYear()
+		System.out.println("\n" + parks.getParkName() + ", " + parks.getParkLocation() + "\nEST.\t\t" + parks.getEstablishedYear()
 				+ "\nAREA:\t\t" + parks.getArea() + "sqr kilometers\n" + "Visitors/yr:\t" + parks.getAnnualVisitors()
 				+ "\n\nDESCRIPTION:\n" + parks.getDescription());
 		//make the description visually appealing
 	}
 
-	private void displayParkInfo() {
+	private void displayParkInfoMenu() {
 		String choice = (String) menu.getChoiceFromOptions(PARK_INFO_OPTIONS);
 		if (choice.equals(PARK_INFO_VIEW_CAMPS)) {
 			handleGetAllCamps();
-			displayParkCampsReservation();
+			displayParkCampsReservationMenu();
 		} else if (choice.equals(RETURN)) {
 			mainMenu();
 		} else if (choice.equals(EXIT)) {
@@ -142,8 +138,8 @@ public class CampgroundCLI {
 
 	// Park Campgrounds //
 
-	private void displayParkCampsReservation() {
-		System.out.print("Enter campground number>>>");
+	private void displayParkCampsReservationMenu() {
+		System.out.print("Select campground number >>>");
 		Scanner scan = new Scanner(System.in);
 		String campgroundSelect = scan.nextLine();
 		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect) - 1)
@@ -153,16 +149,23 @@ public class CampgroundCLI {
 		handleGetAllSitesEmpty(camp);
 		
 		//put this whole thing in a try-catch
-		System.out.print("Enter Arrival date: YYYY/MM/DD >>>");
+		System.out.print("\nEnter Arrival date: YYYY/MM/DD >>>");
 		String arrivalSelect = scan.nextLine();
 		System.out.println("Selected Arrival: "+ reservationDAO.stringToDateToSQL(arrivalSelect));
-		System.out.print("Enter Departure date: YYYY/MM/DD >>>");
+		System.out.print("\nEnter Departure date: YYYY/MM/DD >>>");
 		String departureSelect = scan.nextLine();
-		System.out.print("\tSelected Departure: "+reservationDAO.stringToDateToSQL(departureSelect));
-
+		System.out.println("Selected Departure: "+ reservationDAO.stringToDateToSQL(departureSelect));
+		
+		listAllSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
+				reservationDAO.stringToDateToSQL(departureSelect), 
+				campgroundDAO.getCampgroundIdByName(campgroundSelect)));
+		
+		System.out.println(listAllSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
+				reservationDAO.stringToDateToSQL(departureSelect), 
+				campgroundDAO.getCampgroundIdByName(campgroundSelect))));
 		// plug departure date into reservation
 
-		System.out.print("Select site to reserve by site ID >>>");
+		System.out.println("\nSelect site to reserve by site ID >>>");
 		int siteReserved = scan.nextInt();
 		System.out.println("Name for reservation?");
 		String nameOfReservation = scan.nextLine();
@@ -177,7 +180,6 @@ public class CampgroundCLI {
 			System.exit(0);
 		}
 	}
-	
 
 	private void handleGetAllSites(String input) {
 		System.out.println("\nSites by Popularity");
@@ -190,15 +192,18 @@ public class CampgroundCLI {
 		listAllSites(allSites);
 	}
 
-	private void listAllSites(List<Site> inputSite) {
+	private String listAllSites(List<Site> inputSite) {
+		String result ="";
 		if (inputSite.size() > 0) {
-			for (Site sites : inputSite) {
-				System.out.println("Site Id. " + sites.getSiteId()+" Site No. " + sites.getSiteNumber() + " Max Occup. " + sites.getMaxOccupancy()
-						+ " Accessible? " + sites.isItAccessible() + " Max RV Length " + sites.getMaxRvLength()
-						+ " Utilities? " + sites.isUtilities());
+			for (Site sites : inputSite) {				
+				result = "Site Id. " + sites.getSiteId()+" Site No. " + sites.getSiteNumber() + " Max Occup. " + sites.getMaxOccupancy()
+				+ " Accessible? " + sites.isItAccessible() + " Max RV Length " + sites.getMaxRvLength()
+				+ " Utilities? " + sites.isUtilities();
+				System.out.println(result);
 			}
 		} else {
 			System.out.println("");
 		}
+		return result;
 	}
 }
