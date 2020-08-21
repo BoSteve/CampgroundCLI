@@ -5,7 +5,6 @@ import java.util.List;
 
 public interface SiteDAO {
 
-	
-public List <Site> getAvailableSites(long Id, LocalDate startDate, LocalDate endDate);
+public List<Site> getSiteInfoByCampName(String campName);
 
 }
