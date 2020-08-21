@@ -58,7 +58,7 @@ public class JDBCParkDAO implements ParkDAO{
 	public List<String> getNameByParkId() {
 		List<String> results = new ArrayList<String>();
 		
-		String sql = "Select * from park WHERE park_id <= 5";
+		String sql = "Select * from park WHERE park_id <= 5 ORDER BY name asc";
 		SqlRowSet sqlNameId = jdbcTemplate.queryForRowSet(sql);
 		while(sqlNameId.next()) {
 			Park newPark = rowFromPark(sqlNameId);

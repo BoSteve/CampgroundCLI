@@ -51,6 +51,17 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 		jdbcTemplate.update(createdRes, confirmationId, startDate, endDate, nameOfReservation);
 	}
 
-	
-	
+	@Override
+	public LocalDate stringToDateToSQL(String userInput) {
+		String [] arr = userInput.split("\\/|//-");	
+		int year = Integer.parseInt(arr[0]);
+		int month= Integer.parseInt(arr[1]);
+		int day = Integer.parseInt(arr[2]);
+
+		LocalDate result = LocalDate.of(year, month, day);
+		
+		return result;
+		
+	}
+
 }
