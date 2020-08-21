@@ -1,6 +1,7 @@
 package com.techelevator.CLI;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,9 +14,12 @@ import com.techelevator.parks.model.CampgroundDAO;
 import com.techelevator.parks.model.Park;
 import com.techelevator.parks.model.ParkDAO;
 import com.techelevator.parks.model.ReservationDAO;
+import com.techelevator.parks.model.Site;
+import com.techelevator.parks.model.SiteDAO;
 import com.techelevator.parks.model.jdbc.JDBCCampgroundDAO;
 import com.techelevator.parks.model.jdbc.JDBCParkDAO;
 import com.techelevator.parks.model.jdbc.JDBCReseravtionDAO;
+import com.techelevator.parks.model.jdbc.JDBCSiteDAO;
 import com.techelevator.view.Menu;
 
 public class CampgroundCLI {
@@ -27,6 +31,7 @@ public class CampgroundCLI {
 	private CampgroundDAO campgroundDAO;
 	private ParkDAO parkDAO;
 	private ReservationDAO reservationDAO;
+	private SiteDAO siteDAO;
 	private int parkSelected = 0;
 
 	static BasicDataSource dataSource = new BasicDataSource();
@@ -61,8 +66,11 @@ public class CampgroundCLI {
 		campgroundDAO = new JDBCCampgroundDAO(datasource);
 		parkDAO = new JDBCParkDAO(datasource);
 		reservationDAO = new JDBCReseravtionDAO(datasource);
+		siteDAO = new JDBCSiteDAO(datasource);
 		// make a seperate setter later
 		allParksSetter();
+		System.out.println(siteDAO.getSiteInfoByCampName("Blackwoods").get(4).getSiteId());
+
 	}
 
 	private void allParksSetter() {
@@ -168,15 +176,16 @@ public class CampgroundCLI {
 		System.out.print("Enter campground number>>>");
 		Scanner scan = new Scanner(System.in);
 		String campgroundSelect = scan.nextLine();
+//		System.out.println(campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect)-1).getNameOfCampground());
 		
-		
+		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect)-1).getNameOfCampground();
+		System.out.println("name " + camp);
+		System.out.println(siteDAO.getSiteInfoByCampName(camp).get(0).getCampgroundId());
 		try {
-			List<Campground> Campgrounds = campgroundDAO.getAllCampgroundsByParkId(Integer.parseInt(campgroundSelect));
-			if (Campgrounds.size() > 0) {
-				for (Campground Campground : Campgrounds) {
-					System.out.println("Name: " + Campground.getNameOfCampground() + "GUH");
+			List<Site> sites = siteDAO.getSiteInfoByCampName(campgroundSelect);
+				for (Site Campground : sites) {
+					System.out.println(siteDAO.getSiteInfoByCampName("Blackwoods"));
 				}
-			}
 		} catch (Exception e) {
 			System.out.println("INVALED INPUT!!! RETURNING TO RESERVATION SCREEN");
 			displayParkCamps();
