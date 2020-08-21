@@ -42,21 +42,20 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 	}
 	@Override
 	public Long getCampgroundIdByName(String campName) {
-		Long result = (long) 1;
-		String sql = "SELECT campground_id FROM campground WHERE name = ?";
+		Long result = null;
+		String sql = "SELECT * FROM campground WHERE name = ?";
 		SqlRowSet sqlrowset = jdbcTemplate.queryForRowSet(sql, campName);
-		
 		while (sqlrowset.next()) {
 			Campground holder = rowFromCampground(sqlrowset);
 			result = holder.getId();
 		}
-		
-		System.out.println(result);
 		return result;
 	}
 
 	private Campground rowFromCampground(SqlRowSet sqlCamp) {
 		Campground newCampGround = new Campground();
+		
+		newCampGround.setParkId(sqlCamp.getLong("park_id"));
 		newCampGround.setId(sqlCamp.getLong("campground_id"));
 		newCampGround.setNameOfCampground(sqlCamp.getString("name"));
 		newCampGround.setOpenMonth(sqlCamp.getString("open_from_mm"));

@@ -143,7 +143,7 @@ public class CampgroundCLI {
 		Scanner scan = new Scanner(System.in);
 		String campgroundSelect = scan.nextLine();
 		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect) - 1)
-				.getNameOfCampground();
+				.getNameOfCampground().toString();
 		System.out.println("Campgrounds: " + camp);		
 		handleGetAllSites(camp);
 		handleGetAllSitesEmpty(camp);
@@ -156,9 +156,9 @@ public class CampgroundCLI {
 		String departureSelect = scan.nextLine();
 		System.out.println("Selected Departure: "+ reservationDAO.stringToDateToSQL(departureSelect));
 		
-		listNonOverlapSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
+		listAllSites(siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect), 
 				reservationDAO.stringToDateToSQL(departureSelect), 
-				campgroundDAO.getCampgroundIdByName(campgroundSelect)));
+				campgroundDAO.getCampgroundIdByName(camp)));
 		// plug departure date into reservation
 
 		System.out.println("\nSelect site to reserve by site ID >>>");

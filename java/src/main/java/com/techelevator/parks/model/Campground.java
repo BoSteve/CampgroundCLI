@@ -3,6 +3,7 @@ import java.math.BigDecimal;
 
 public class Campground {
 
+	private Long parkId;
 	private Long id;
 	private String nameOfCampground;
 	private String openMonth;
@@ -40,5 +41,10 @@ public class Campground {
 	public void setDailyFee(BigDecimal dailyFee) {
 		this.dailyFee = dailyFee;
 	}
-	
+	public Long getParkId() {
+		return parkId;
+	}
+	public void setParkId(Long parkId) {
+		this.parkId = parkId;
+	}
 }

@@ -28,16 +28,12 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 	public List<Site> dateToSet(LocalDate arrival, LocalDate departure, Long id) {
 		List<Site> results = new ArrayList<Site>();
 		
-		System.out.println(arrival);
-		System.out.println(departure);
-		System.out.println(id);
-		
 		Set <LocalDate> dates = new HashSet<LocalDate>();
 		dates.add(arrival);
 		dates.add(departure);
 		
 		Set <Long> ids = new HashSet<Long>();
-		ids.add(1L);
+		ids.add(id);
 
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("dates", dates);
