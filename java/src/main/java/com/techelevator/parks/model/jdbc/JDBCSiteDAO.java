@@ -41,7 +41,7 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 		
 		String sql = "SELECT * FROM site where campground_id = ( :ids ) AND site_id " +
 		"NOT IN (SELECT site_id FROM reservation WHERE (from_date, to_date) OVERLAPS ( :dates ))"
-		+ "LIMIT 10";
+		+ "LIMIT 5";
 		
 		SqlRowSet rowset = jdbcSpecial.queryForRowSet(sql, parameters);
 		
@@ -97,7 +97,8 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 				"site.accessible, " + 
 				"site.max_rv_length, " + 
 				"site.utilities, " + 
-				"COUNT(reservation_id) as reservation_count FROM reservation  " + 
+				"COUNT(reservation_id) as reservation_count "
+				+ "FROM reservation  " + 
 				"JOIN site ON reservation.site_id = site.site_id " + 
 				"JOIN campground ON campground.campground_id = site.campground_id " + 
 				"WHERE campground.name = ? " + 

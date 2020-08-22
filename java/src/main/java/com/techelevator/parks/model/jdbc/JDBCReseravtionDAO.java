@@ -29,16 +29,6 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 		return reservationList;
 	}
 
-	private Reservation rowFromReservation(SqlRowSet sqlReservation) {
-		Reservation reservationRow = new Reservation();
-		reservationRow.setNameOfReservation(sqlReservation.getString("name"));
-		reservationRow.setStartDate(sqlReservation.getDate("from_date").toLocalDate());
-		reservationRow.setEndDate(sqlReservation.getDate("to_date").toLocalDate());
-		reservationRow.setConfirmationId(sqlReservation.getLong("reservation_id"));
-
-		return reservationRow;
-	}
-
 	@Override
 	public void createReservation(Long site, LocalDate startDate, LocalDate endDate, String nameOfReservation) {
 		String createdRes = "INSERT INTO reservation (site_id, name, from_date, to_date, create_date) "
@@ -47,8 +37,26 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 		jdbcTemplate.update(createdRes, site, nameOfReservation, startDate, endDate, current);
 	}
 	
+	@Override
+	public String getReservationId (Long site, LocalDate startDate, LocalDate endDate, String nameOfReservation) {
+		String result = null;
+		String sql = "SELECT *  " + 
+				"FROM reservation " + 
+				"where  " + 
+				"name = ? AND " + 
+				"site_id = ? AND " + 
+				"from_date = ? AND " + 
+				"to_date = ? AND " + 
+				"create_date = ? ";
+		LocalDate current = LocalDate.now();
+		SqlRowSet sqlrowset = jdbcTemplate.queryForRowSet(sql, nameOfReservation, site, startDate, endDate,current);
+		while (sqlrowset.next()) {
+			Reservation holder = rowFromReservation(sqlrowset);
+			result = holder.getConfirmationId().toString();
+		}
+		return result;
+	}
 	
-
 	@Override
 	public LocalDate stringToDateToSQL(String userInput) {
 		String[] arr = userInput.split("\\/|//-");
@@ -61,5 +69,14 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 		return result;
 
 	}
+	
+	private Reservation rowFromReservation(SqlRowSet sqlReservation) {
+		Reservation reservationRow = new Reservation();
+		reservationRow.setNameOfReservation(sqlReservation.getString("name"));
+		reservationRow.setStartDate(sqlReservation.getDate("from_date").toLocalDate());
+		reservationRow.setEndDate(sqlReservation.getDate("to_date").toLocalDate());
+		reservationRow.setConfirmationId(sqlReservation.getLong("reservation_id"));
 
+		return reservationRow;
+	}
 }

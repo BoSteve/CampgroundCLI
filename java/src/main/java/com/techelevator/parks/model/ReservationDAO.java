@@ -10,4 +10,6 @@ public interface ReservationDAO {
 	public void createReservation(Long confirmationId, LocalDate startDate, LocalDate endDate, String nameOfReservation);
 
 	LocalDate stringToDateToSQL(String userInput);
+
+	String getReservationId(Long site, LocalDate startDate, LocalDate endDate, String nameOfReservation);
 }
