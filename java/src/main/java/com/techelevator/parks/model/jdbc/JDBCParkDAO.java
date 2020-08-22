@@ -68,7 +68,7 @@ public class JDBCParkDAO implements ParkDAO{
 	}
 	
 	@Override
-	public Park getParkName(String parkName) {
+	public Park getParkByName(String parkName) {
 		String sqlGetParkName = "SELECT * FROM park WHERE name = ?";
 		SqlRowSet sqlParkName = jdbcTemplate.queryForRowSet(sqlGetParkName, parkName);
 		

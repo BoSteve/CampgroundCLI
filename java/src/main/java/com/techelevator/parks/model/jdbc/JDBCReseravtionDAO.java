@@ -67,7 +67,6 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 		LocalDate result = LocalDate.of(year, month, day);
 
 		return result;
-
 	}
 	
 	private Reservation rowFromReservation(SqlRowSet sqlReservation) {
