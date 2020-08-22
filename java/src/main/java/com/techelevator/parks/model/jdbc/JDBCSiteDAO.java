@@ -25,7 +25,7 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 	}
 	
 	@Override
-	public List<Site> dateToSet(LocalDate arrival, LocalDate departure, Long id) {
+	public List<Site> sitesByDate(LocalDate arrival, LocalDate departure, Long id) {
 		List<Site> results = new ArrayList<Site>();
 		
 		Set <LocalDate> dates = new HashSet<LocalDate>();
@@ -40,8 +40,7 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 		parameters.addValue("ids", ids);
 		
 		String sql = "SELECT * FROM site where campground_id = ( :ids ) AND site_id " +
-		"NOT IN (SELECT site_id FROM reservation WHERE (from_date, to_date) OVERLAPS ( :dates ))"
-		+ "LIMIT 5";
+		"NOT IN (SELECT site_id FROM reservation WHERE (from_date, to_date) OVERLAPS ( :dates ))";
 		
 		SqlRowSet rowset = jdbcSpecial.queryForRowSet(sql, parameters);
 		
@@ -52,28 +51,33 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 		return results;
 	}
 	
-	
 	@Override
-	public List<Site> getSiteInfoByCampNameEmpty(String campName) {
-		List<Site> result = new ArrayList<Site>();
-		String sql = "Select  " + 
-				"site_id, " + 
+	public List<Site> sortSitesByReservations (List <Long> input) {
+		List<Site> results = new ArrayList <Site>();
+		
+		Long upper = input.get(input.size()-1);
+		Long lower = input.get(0);
+		
+		String sql = 
+				"SELECT " + 
+				"site.site_id, " + 
 				"site.site_number, " + 
 				"max_occupancy, " + 
 				"accessible, " + 
 				"max_rv_length, " + 
-				"utilities " + 
-				"from site " + 
-				"JOIN campground ON campground.campground_id = site.campground_id " + 
-				"WHERE campground.name = ? " + 
-				"GROUP BY site_id " +
-				"LIMIT 5";
-		SqlRowSet sqlrowset = jdbcTemplate.queryForRowSet(sql, campName);
-		while(sqlrowset.next()) {	
-			Site holder = rowFromSite(sqlrowset);
-			result.add(holder);
+				"utilities,  " + 
+				"COUNT(reservation_id) as reservation_count from site " + 
+				"JOIN reservation ON reservation.site_id = site.site_id " + 
+				"where site.site_id >= ? AND site.site_id <= ? " +  
+				"GROUP BY site.site_id " + 
+				"ORDER BY reservation_count desc " + 
+				"limit 5";
+		SqlRowSet rowset = jdbcTemplate.queryForRowSet(sql, lower, upper);
+		while (rowset.next()) {
+			Site newSite = rowFromSite(rowset);
+			results.add(newSite);
 		}
-		return result;
+		return results;
 	}
 	
 	private Site rowFromSite(SqlRowSet sqlPark) {
@@ -87,42 +91,4 @@ private NamedParameterJdbcTemplate jdbcSpecial;
 
 		return newSite;
 	}
-	
-	public List<Site> getSiteInfoByCampName(String campName) {
-		List<Site> result = new ArrayList<Site>();
-		String sql = "SELECT site.site_id, " + 
-				"site.campground_id, " +
-				"site.max_occupancy, " + 
-				"site.site_number, " + 
-				"site.accessible, " + 
-				"site.max_rv_length, " + 
-				"site.utilities, " + 
-				"COUNT(reservation_id) as reservation_count "
-				+ "FROM reservation  " + 
-				"JOIN site ON reservation.site_id = site.site_id " + 
-				"JOIN campground ON campground.campground_id = site.campground_id " + 
-				"WHERE campground.name = ? " + 
-				"GROUP BY reservation.site_id, site.site_id, campground.name " + 
-				"ORDER BY reservation_count desc, site_id asc " + 
-				"LIMIT 5";
-		SqlRowSet sqlrowset = jdbcTemplate.queryForRowSet(sql, campName);
-		while(sqlrowset.next()) {	
-			Site holder = rowFromSiteSpecial(sqlrowset);
-			result.add(holder);
-		}
-		return result;
-	}
-	
-	private Site rowFromSiteSpecial(SqlRowSet sqlPark) {
-		Site newSite = new Site();
-		newSite.setSiteId(sqlPark.getLong("site_id"));
-		newSite.setSiteNumber(sqlPark.getInt("site_number"));
-		newSite.setCampgroundId(sqlPark.getInt("campground_id"));
-		newSite.setMaxOccupancy(sqlPark.getInt("max_occupancy"));
-		newSite.setItAccessible(sqlPark.getBoolean("accessible"));
-		newSite.setMaxRvLength(sqlPark.getInt("max_rv_length"));
-		newSite.setUtilities(sqlPark.getBoolean("utilities"));
-		return newSite;
-	}
-
 }

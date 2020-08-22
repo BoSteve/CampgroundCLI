@@ -37,19 +37,6 @@ public class CampgroundCLI {
 	private ReservationDAO reservationDAO;
 	private SiteDAO siteDAO;
 
-	private static String[] MAIN_MENU_OPTIONS;
-	private static final String RETURN = "Go back";
-	private static final String EXIT = "Exit";
-	private static final String PARK_INFO_VIEW_CAMPS = "View Park Campgrounds";
-	private static final String[] PARK_INFO_OPTIONS = { PARK_INFO_VIEW_CAMPS, RETURN, EXIT };
-	private static final String RESERVE_AGAIN = "Reserve Another Site";
-	private static final String[] RESERVATION_COMPLETED_OPTIONS = { RESERVE_AGAIN, EXIT };
-
-	// records user's park choice, creates list of parks
-	private int parkSelected = 0;
-	private String[] allParks;
-	List<Long> sitesNarrowed = new ArrayList<Long>();
-
 	public static void main(String[] args) {
 		CampgroundCLI application = new CampgroundCLI(dataSource);
 		application.mainMenu();
@@ -65,8 +52,24 @@ public class CampgroundCLI {
 		parkDAO = new JDBCParkDAO(datasource);
 		reservationDAO = new JDBCReseravtionDAO(datasource);
 		siteDAO = new JDBCSiteDAO(datasource);
-		allParksSetter();
+		// sets up the parks in main menu
+		setMainMenuParks();
 	}
+
+	private static String[] MAIN_MENU_OPTIONS;
+	private static final String RETURN = "Go back";
+	private static final String EXIT = "Exit";
+	private static final String PARK_INFO_VIEW_CAMPS = "View Park Campgrounds";
+	private static final String[] PARK_INFO_OPTIONS = { PARK_INFO_VIEW_CAMPS, RETURN, EXIT };
+	private static final String RESERVE_AGAIN = "Reserve Another Site";
+	private static final String[] RESERVATION_COMPLETED_OPTIONS = { RESERVE_AGAIN, EXIT };
+
+	// records user's park choice from array of parks
+	private int parkSelected = 0;
+	private String[] allParks;
+
+	// IDs of all sites within date
+	List<Long> sitesNarrowedByDate = new ArrayList<Long>();
 
 	// 1
 	private void mainMenu() {
@@ -75,13 +78,13 @@ public class CampgroundCLI {
 		while (true) {
 			String choice = (String) menu.getChoiceFromOptions(MAIN_MENU_OPTIONS);
 			if (choice.equals(allParks[0])) {
-				handleGetAllParksByName(allParks[0]);
+				handlePrintAllParksByName(allParks[0]);
 				parkSelected = 1;
 			} else if (choice.equals(allParks[1])) {
-				handleGetAllParksByName(allParks[1]);
+				handlePrintAllParksByName(allParks[1]);
 				parkSelected = 2;
 			} else if (choice.equals(allParks[2])) {
-				handleGetAllParksByName(allParks[2]);
+				handlePrintAllParksByName(allParks[2]);
 				parkSelected = 3;
 			} else if (choice.equals(EXIT)) {
 				exile();
@@ -94,7 +97,7 @@ public class CampgroundCLI {
 	private void displayParkInfoMenu() {
 		String choice = (String) menu.getChoiceFromOptions(PARK_INFO_OPTIONS);
 		if (choice.equals(PARK_INFO_VIEW_CAMPS)) {
-			handleGetAllCamps();
+			handlePrintAllCamps();
 			displayParkCampsReservationMenu();
 		} else if (choice.equals(RETURN)) {
 			mainMenu();
@@ -103,27 +106,28 @@ public class CampgroundCLI {
 		}
 	}
 
+	// 3
+
+	// records user's inputs, passes into encapsulated methods
 	private String camp = null;
 	private String arrivalSelect = null;
 	private String departureSelect = null;
 	private String campgroundSelect = null;
 	private String siteReserved = null;
 
-	// 3
 	private void displayParkCampsReservationMenu() {
 
 		System.out.print("\nSelect campground number >>> ");
 		Scanner scan = new Scanner(System.in);
-
 		inputCampground(scan);
+
 		inputArrivalDate(scan);
 		inputDepartureDate(scan);
 
 		printAllSitesGivenDate(camp, arrivalSelect, departureSelect);
 
-		validSite(scan); 
-		System.out.println("Selected site: " + siteReserved);
-		
+		validSite(scan);
+		System.out.println("Site " + siteReserved + " is available!" );
 		String nameOfReservation = makeReservation(scan);
 		confirmReservation(nameOfReservation);
 
@@ -137,19 +141,18 @@ public class CampgroundCLI {
 	}
 
 	//
-	
+
 	//
-	
+
 	//
-	
+
 	//
-	
+
 	//
-	
+
 	public void confirmReservation(String nameOfReservation) {
 		int totalDays = reservationDAO.stringToDateToSQL(departureSelect)
 				.compareTo(reservationDAO.stringToDateToSQL(arrivalSelect));
-
 		BigDecimal bDTotalDays = new BigDecimal(totalDays);
 		System.out.println("\n--CONFIRMATION--");
 		System.out.println("Reservation ID: " + reservationDAO.getReservationId(Long.parseLong(siteReserved),
@@ -166,7 +169,6 @@ public class CampgroundCLI {
 		System.out.println("Name for reservation >>> ");
 		String nameOfReservation = scan.nextLine();
 		System.out.println("Reservation for: " + nameOfReservation);
-
 		try {
 			reservationDAO.createReservation(Long.parseLong(siteReserved),
 					reservationDAO.stringToDateToSQL(arrivalSelect), reservationDAO.stringToDateToSQL(departureSelect),
@@ -179,13 +181,29 @@ public class CampgroundCLI {
 
 	public void validSite(Scanner scan) {
 		System.out.println("\nSelect site to reserve by Site ID >>> ");
-		siteReserved = scan.nextLine();
-		
-		Long upper = sitesNarrowed.get(sitesNarrowed.size()-1);
-		Long lower = sitesNarrowed.get(0);
-		if (!(Long.parseLong(siteReserved) >= lower && Long.parseLong(siteReserved) <= upper)) {
-			System.out.println("Invalid Campsite selected");
+		Long upper = sitesNarrowedByDate.get(sitesNarrowedByDate.size() - 1);
+		Long lower = sitesNarrowedByDate.get(0);
+		try {
+			siteReserved = scan.nextLine();
+
+			if (!(Long.parseLong(siteReserved) >= lower && Long.parseLong(siteReserved) <= upper)) {
+				System.out.println("Selected campground is not available");
+				validSite(scan);
+			}
+		} catch (Exception e) {
+			System.out.println("Invalid format entered");
 			validSite(scan);
+		}
+	}
+
+	public void inputArrivalDate(Scanner scan) {
+		try {
+			System.out.print("\nEnter Arrival date: YYYY/MM/DD >>> ");
+			arrivalSelect = scan.nextLine();
+			System.out.println("Selected Arrival: " + reservationDAO.stringToDateToSQL(arrivalSelect));
+		} catch (Exception e) {
+			System.out.println("Invalid Date Entered");
+			inputArrivalDate(scan);
 		}
 	}
 
@@ -204,21 +222,10 @@ public class CampgroundCLI {
 	public void inputCampground(Scanner scan) {
 		try {
 			campgroundSelect = scan.nextLine();
-			camp = listSitesByPopularity(campgroundSelect);
+			camp = displayCurrentParkCamp(campgroundSelect);
 		} catch (Exception e) {
 			System.out.println("Invalid campsite number");
 			displayParkCampsReservationMenu();
-		}
-	}
-
-	public void inputArrivalDate(Scanner scan) {
-		try {
-			System.out.print("\nEnter Arrival date: YYYY/MM/DD >>> ");
-			arrivalSelect = scan.nextLine();
-			System.out.println("Selected Arrival: " + reservationDAO.stringToDateToSQL(arrivalSelect));
-		} catch (Exception e) {
-			System.out.println("Invalid Date Entered");
-			inputArrivalDate(scan);
 		}
 	}
 
@@ -238,7 +245,7 @@ public class CampgroundCLI {
 			put("12", "Dec");
 		}
 	};
-	
+
 	private String printMonthName(String monthnum) {
 		String result = monthMap.get(monthnum);
 		return result;
@@ -259,87 +266,91 @@ public class CampgroundCLI {
 		return result;
 	}
 
-
 	public void printAllSitesGivenDate(String camp, String arrivalSelect, String departureSelect) {
-		List<Site> sitesFromDateId = siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect),
+		List<Site> sitesFromDateId = siteDAO.sitesByDate(reservationDAO.stringToDateToSQL(arrivalSelect),
 				reservationDAO.stringToDateToSQL(departureSelect), campgroundDAO.getCampgroundIdByName(camp));
-		listAllSites(sitesFromDateId);
 		Long id;
 		for (Site holder : sitesFromDateId) {
 			id = holder.getSiteId();
-			sitesNarrowed.add(id);
+			sitesNarrowedByDate.add(id);
 		}
+
+		List<Site> sorted = siteDAO.sortSitesByReservations(sitesNarrowedByDate);
+		handlePrintSitesPopular(sorted);
 	}
 
-	private String listSitesByPopularity(String campgroundSelect) {
+	private String displayCurrentParkCamp(String campgroundSelect) {
 		String camp = campgroundDAO.getAllCampgroundsByParkId(parkSelected).get(Integer.parseInt(campgroundSelect) - 1)
 				.getNameOfCampground();
-
-		System.out.println("\n--Site Information--\nPark: " + allParks[parkSelected - 1]);
-		System.out.println("Camp: " + camp + "\n");
-		int size = campgroundDAO.getAllCampgroundsByParkId(parkSelected).size();
-
-		List<Site> reservationChecker = siteDAO.getSiteInfoByCampName(camp);
-		if (reservationChecker.size() >= 5) {
-			handleGetAllSites(camp);
-		} else
-			handleGetAllSitesEmpty(camp);
+		System.out.println("\n--Information Selected--\nPark: " + allParks[parkSelected - 1]);
+		System.out.println("Camp: " + camp);
 		return camp;
 	}
 
-	private void handleGetAllSites(String input) {
-		System.out.println("Top 5 Most Popular Sites:");
-		List<Site> allSites = siteDAO.getSiteInfoByCampName(input);
-		listAllSites(allSites);
-	}
-
-	private void handleGetAllSitesEmpty(String input) {
-		List<Site> allSites = siteDAO.getSiteInfoByCampNameEmpty(input);
-		listAllSites(allSites);
-	}
-
-	private String listAllSites(List<Site> inputSite) {
+	// prints all sites w/o popularity
+	private void handlePrintSitesNoPop(String input) {
 		String result = "";
+		// acquire sites by date restriction
+		List<Site> allSites = siteDAO.sitesByDate(reservationDAO.stringToDateToSQL(arrivalSelect),
+				reservationDAO.stringToDateToSQL(departureSelect), campgroundDAO.getCampgroundIdByName(camp));
+
+		System.out.println("Sites within date (not sorted)");
 		System.out.println("ID.\tNo.\tMax Occup.\tMax RV length\tAccessible\tUtilities");
-		if (inputSite.size() > 0) {
+		try {
+			for (int i = 0; i < 5; i++) {
+				result = allSites.get(i).getSiteId() + "\t" + allSites.get(i).getSiteNumber() + "\t"
+						+ allSites.get(i).getMaxOccupancy() + "\t\t" + allSites.get(i).getMaxRvLength() + "\t\t"
+						+ allSites.get(i).isItAccessible() + "\t\t" + allSites.get(i).isUtilities();
+				System.out.println(result);
+			}
+		} catch (Exception e) {
+		}
+	}
+
+	// prints all sites by popularity
+	private String handlePrintSitesPopular(List<Site> inputSite) {
+		String result = "";
+		if (inputSite.size() >= 5) {
+			System.out.println("Top 5 campsites!");
+			System.out.println("ID.\tNo.\tMax Occup.\tMax RV length\tAccessible\tUtilities");
 			for (Site sites : inputSite) {
 				result = sites.getSiteId() + "\t" + sites.getSiteNumber() + "\t" + sites.getMaxOccupancy() + "\t\t"
 						+ sites.getMaxRvLength() + "\t\t" + sites.isItAccessible() + "\t\t" + sites.isUtilities();
 				System.out.println(result);
 			}
 		} else {
-			System.out.println("listAllSites Error");
+			handlePrintSitesNoPop(camp);
 		}
 		return result;
 	}
 
-	private void allParksSetter() {
+	private void setMainMenuParks() {
 		this.allParks = new String[jdbcParkDAO.getNameByParkId().size() + 1];
 		jdbcParkDAO.getNameByParkId().toArray(allParks);
 		allParks[jdbcParkDAO.getNameByParkId().size()] = "Exit";
 		this.MAIN_MENU_OPTIONS = allParks;
 	}
-	
-	private void listParkInfo(Park parks) {
+
+	private void printParkInfo(Park parks) {
 		System.out.println("\n" + parks.getParkName() + "\nLocation:\t" + parks.getParkLocation() + "\nEST.\t\t"
 				+ printYearMonthName(parks.getEstablishedYear()) + "\nAREA:\t\t" + printCommaFormat(parks.getArea())
 				+ " sq km \n" + "Visitors/yr:\t" + printCommaFormat(parks.getAnnualVisitors()) + "\n\nDESCRIPTION:\n"
 				+ parks.getDescription());
 	}
-	
-	private void handleGetAllParksByName(String parkName) {
+
+	private void handlePrintAllParksByName(String parkName) {
 		System.out.println();
 		System.out.println("--Park Information--");
 		Park allParks = parkDAO.getParkName(parkName);
-		listParkInfo(allParks);
+		printParkInfo(allParks);
 	}
 
-	private void handleGetAllCamps() {
+	private void handlePrintAllCamps() {
 		List<Campground> allCampgrounds = campgroundDAO.getAllCampgroundsByParkId(parkSelected);
-		listAllCamps(allCampgrounds);
+		printAllCamps(allCampgrounds);
 	}
 
-	private void listAllCamps(List<Campground> Campgrounds) {
+	private void printAllCamps(List<Campground> Campgrounds) {
 		int counter = 0;
 		System.out.println("\n--Campground Info--\n\nPark: " + allParks[parkSelected - 1]);
 		System.out.println("ID\tCost\t\tOpen Months\tName");
@@ -353,9 +364,9 @@ public class CampgroundCLI {
 			System.out.println("\n*** No results ***");
 		}
 	}
-	
+
 	public void wipeSitesNarrowed() {
-		sitesNarrowed.removeAll(sitesNarrowed);
+		sitesNarrowedByDate.removeAll(sitesNarrowedByDate);
 	}
 
 	private void exile() {

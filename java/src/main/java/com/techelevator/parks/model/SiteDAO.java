@@ -5,9 +5,7 @@ import java.util.List;
 
 public interface SiteDAO {
 
-public List<Site> getSiteInfoByCampName(String campName);
+List<Site> sitesByDate(LocalDate arrival, LocalDate departure, Long id);
 
-public List<Site> getSiteInfoByCampNameEmpty(String campName);
-
-List<Site> dateToSet(LocalDate arrival, LocalDate departure, Long id);
+List<Site> sortSitesByReservations(List<Long> input);
 }
