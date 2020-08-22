@@ -1,5 +1,6 @@
 package com.techelevator.parks.model.jdbc;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -48,6 +49,19 @@ public class JDBCCampgroundDAO implements CampgroundDAO {
 		while (sqlrowset.next()) {
 			Campground holder = rowFromCampground(sqlrowset);
 			result = holder.getId();
+		}
+		return result;
+	}
+	
+	@Override
+	public BigDecimal getCampgroundCostByName(String campName) {
+		BigDecimal result = new BigDecimal(0.00);
+		
+		String sql = "select * from campground WHERE name = ? ";
+		SqlRowSet sqlrowset = jdbcTemplate.queryForRowSet(sql, campName);
+		while (sqlrowset.next()) {
+			Campground holder = rowFromCampground(sqlrowset);
+			result = result.add(holder.getDailyFee());
 		}
 		return result;
 	}
