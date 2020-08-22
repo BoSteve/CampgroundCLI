@@ -50,7 +50,6 @@ public class CampgroundCLI {
 	private String[] allParks;
 	List<Long> sitesNarrowed = new ArrayList<Long>();
 
-
 	public static void main(String[] args) {
 		CampgroundCLI application = new CampgroundCLI(dataSource);
 		application.mainMenu();
@@ -130,8 +129,14 @@ public class CampgroundCLI {
 		String nameOfReservation = scan.nextLine();
 		System.out.println("Reservation for: " + nameOfReservation);
 
-		// addReservation(int siteReserved, nameOfReservation, arrivalSelect,
-		// departureSelect, createDate());
+		// create reservation
+		try {
+		reservationDAO.createReservation(Long.parseLong(siteReserved), reservationDAO.stringToDateToSQL(arrivalSelect),
+				reservationDAO.stringToDateToSQL(departureSelect), nameOfReservation);
+		} catch(Exception e) {
+			System.out.println("Reservation failed");
+		}
+
 		int totalDays = reservationDAO.stringToDateToSQL(departureSelect)
 				.compareTo(reservationDAO.stringToDateToSQL(arrivalSelect));
 
@@ -147,7 +152,7 @@ public class CampgroundCLI {
 
 		if (choice.equals(RESERVE_AGAIN)) {
 			mainMenu();
-			//wipe the list of sites
+			// wipe the list of sites
 		} else if (choice.equals(EXIT)) {
 			exile();
 		}
@@ -197,13 +202,13 @@ public class CampgroundCLI {
 		String result = df.format(lng);
 		return result;
 	}
-	
+
 	public void listAllSitesGivenDate(String camp, String arrivalSelect, String departureSelect) {
 		List<Site> sitesFromDateId = siteDAO.dateToSet(reservationDAO.stringToDateToSQL(arrivalSelect),
 				reservationDAO.stringToDateToSQL(departureSelect), campgroundDAO.getCampgroundIdByName(camp));
 		listAllSites(sitesFromDateId);
-		
-		for(Site holder : sitesFromDateId) {
+
+		for (Site holder : sitesFromDateId) {
 			sitesNarrowed.add(holder.getCampgroundId());
 		}
 	}
@@ -217,15 +222,18 @@ public class CampgroundCLI {
 		int size = campgroundDAO.getAllCampgroundsByParkId(parkSelected).size();
 
 		List<Site> reservationChecker = siteDAO.getSiteInfoByCampName(camp);
-		if (reservationChecker.size() > 0)
+		if (reservationChecker.size() > 0 && reservationChecker.size() <=5) {
 			handleGetAllSites(camp);
+			System.out.println("\nOther sites:");
+			handleGetAllSitesEmpty(camp);
+		}
 		else
 			handleGetAllSitesEmpty(camp);
 		return camp;
 	}
 
 	private void handleGetAllSites(String input) {
-		System.out.println("Sites by Popularity!");
+		System.out.println("Top 5 Most Popular Sites:");
 		List<Site> allSites = siteDAO.getSiteInfoByCampName(input);
 		listAllSites(allSites);
 	}
@@ -269,7 +277,6 @@ public class CampgroundCLI {
 				+ printYearMonthName(parks.getEstablishedYear()) + "\nAREA:\t\t" + printCommaFormat(parks.getArea())
 				+ " sq km \n" + "Visitors/yr:\t" + printCommaFormat(parks.getAnnualVisitors()) + "\n\nDESCRIPTION:\n"
 				+ parks.getDescription());
-		// make the description visually appealing
 	}
 
 	private void handleGetAllCamps() {
