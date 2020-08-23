@@ -120,14 +120,14 @@ public class CampgroundCLI {
 
 	private void displayParkCampsReservationMenu() {
 		handlePrintAllCamps();
+		
 		inputCampground();
-
 		inputArrivalDate();
 		inputDepartureDate();
-		inverseDateCheck();
-
+		
+		inverseDateCheck(departureSelect, arrivalSelect);
 		printAllSitesGivenDate(camp, arrivalSelect, departureSelect);
-		validSite();
+		validateSites(topFive);
 
 		confirmReservation(nameOfReservation);
 
@@ -144,7 +144,7 @@ public class CampgroundCLI {
 
 	//
 
-	//
+	//	NOTE: In hindsight, we should have separated DAO methods from functional methods
 
 	//
 
@@ -160,14 +160,14 @@ public class CampgroundCLI {
 
 // !!!Park Methods
 
-	private void printParkInfo(Park parks) {
+	public void printParkInfo(Park parks) {
 		System.out.println("\n" + parks.getParkName() + "\nLocation:\t" + parks.getParkLocation() + "\nEST.\t\t"
 				+ printYearMonthName(parks.getEstablishedYear()) + "\nAREA:\t\t" + printCommaFormat(parks.getArea())
 				+ " sq km \n" + "Visitors/yr:\t" + printCommaFormat(parks.getAnnualVisitors()) + "\n\nDESCRIPTION:\n"
 				+ paragrapher(parks.getDescription()));
 	}
 
-	private void handlePrintAllParksByName(String parkName) {
+	public void handlePrintAllParksByName(String parkName) {
 		System.out.println();
 		System.out.println("--Park Information--");
 		Park parkByName = parkDAO.getParkByName(parkName);
@@ -184,7 +184,7 @@ public class CampgroundCLI {
 
 // !!!Camp Methods
 
-	public String inputCampground() {
+	public void inputCampground() {
 		System.out.print("\nRent campground by ID >>> ");
 		try {
 			campgroundSelect = scan.nextLine();
@@ -193,7 +193,6 @@ public class CampgroundCLI {
 			System.out.println("Invalid campsite number");
 			inputCampground();
 		}
-		return camp;
 	}
 
 	private void handlePrintAllCamps() {
@@ -218,19 +217,19 @@ public class CampgroundCLI {
 
 // !!!Sites Methods
 
-	Map<Long, Integer> siteMapIDxPopularity = new HashMap<Long, Integer>();
+	private Map<Long, Integer> siteMapIDxPopularity = new HashMap<Long, Integer>();
 
-	List<Long> siteIDsByDate = new ArrayList<Long>();
-	List<Long> siteIDByDateAndPopularity = new ArrayList<Long>();
+	private List<Long> siteIDsByDate = new ArrayList<Long>();
+	private List<Long> siteIDByDateAndPopularity = new ArrayList<Long>();
 
-	List<Site> sitesFromDateId = new ArrayList<Site>();
-	List<Site> sitesByDateAndPopularity = new ArrayList<Site>();
-	List<Site> topFive = new ArrayList<Site>();
+	private List<Site> sitesFromDateId = new ArrayList<Site>();
+	private List<Site> sitesByDateAndPopularity = new ArrayList<Site>();
+	private List<Site> topFive = new ArrayList<Site>();
 
 	private void printAllSitesGivenDate(String camp, String arrivalSelect, String departureSelect) {
 
-		sitesFromDateId = siteDAO.sitesByDate(reservationDAO.stringToDateToSQL(arrivalSelect),
-				reservationDAO.stringToDateToSQL(departureSelect), campgroundDAO.getCampgroundIdByName(camp));
+		sitesFromDateId = siteDAO.sitesByDate(stringDateToLocalDate(arrivalSelect), stringDateToLocalDate(departureSelect),
+				campgroundDAO.getCampgroundIdByName(camp));
 		Long id;
 		for (Site holder : sitesFromDateId) {
 			id = holder.getSiteId();
@@ -238,19 +237,17 @@ public class CampgroundCLI {
 		}
 
 		System.out.println("\n--Sites available between--\n" + arrivalSelect + " - " + departureSelect + "\n");
-
-		//sorting a map
+		// sorting a map
 		siteMapIDxPopularity = sortByValue(siteDAO.sortSitesByReservations(siteIDsByDate));
-
-		// @TE what is Entry and entrySet
+		// @TE please explain Entry and entrySet
 		for (Entry<Long, Integer> en : siteMapIDxPopularity.entrySet()) {
 			siteIDByDateAndPopularity.add(en.getKey());
 		}
 
-		//takes ID, returns site
+		// takes ID, returns site to be printed
 		sitesByDateAndPopularity = siteDAO.getSitesById(siteIDByDateAndPopularity);
 
-		//hardcoded way of always displaying 5 sites.
+		// hardcoded way of always displaying 5 sites.
 		if (sitesByDateAndPopularity.size() == 0) {
 			printSiteInfo(sitesFromDateId, 0, 4);
 		} else if (sitesByDateAndPopularity.size() > 0 && sitesByDateAndPopularity.size() < 5) {
@@ -261,11 +258,11 @@ public class CampgroundCLI {
 		}
 	}
 
-	public void validSite() {
+	public boolean validateSites(List<Site> siteList) {
 		List<String> top5IDs = new ArrayList<String>();
 		try {
 			for (int i = 0; i < 5; i++) {
-				top5IDs.add(topFive.get(i).getSiteId().toString());
+				top5IDs.add(siteList.get(i).getSiteId().toString());
 			}
 		} catch (Exception e) {
 			if (top5IDs.size() == 0) {
@@ -273,15 +270,18 @@ public class CampgroundCLI {
 				displayParkCampsReservationMenu();
 			}
 		}
+
 		System.out.println("\nSelect site to reserve by Site ID >>> ");
 		siteReserved = scan.nextLine();
 
 		if (top5IDs.contains(siteReserved)) {
 			System.out.println("Site " + siteReserved + " is available!");
-			nameOfReservation = makeReservation(scan);
+			nameOfReservation = makeReservation();
+			return true;
 		} else {
 			System.out.println("Site is not available");
-			validSite();
+			validateSites(siteList);
+			return false;
 		}
 	}
 
@@ -319,32 +319,30 @@ public class CampgroundCLI {
 		}
 	}
 
-	// !!!Reservation Methods
+// !!!Reservation Methods
 
-	public String makeReservation(Scanner scan) {
+	private String makeReservation() {
 		System.out.println("Name for reservation >>> ");
 		String nameOfReservation = scan.nextLine();
 		System.out.println("Reservation for: " + nameOfReservation);
 		try {
-			reservationDAO.createReservation(Long.parseLong(siteReserved),
-					reservationDAO.stringToDateToSQL(arrivalSelect), reservationDAO.stringToDateToSQL(departureSelect),
-					nameOfReservation);
+			reservationDAO.createReservation(Long.parseLong(siteReserved), stringDateToLocalDate(arrivalSelect),
+					stringDateToLocalDate(departureSelect), nameOfReservation);
 		} catch (Exception e) {
 			System.out.println("Reservation failed");
 		}
 		return nameOfReservation;
 	}
 
-	public void confirmReservation(String nameOfReservation) {
-		LocalDate departTest = reservationDAO.stringToDateToSQL(departureSelect);
-		LocalDate arriveTest = reservationDAO.stringToDateToSQL(arrivalSelect);
+	private void confirmReservation(String nameOfReservation) {
+		LocalDate departTest = stringDateToLocalDate(departureSelect);
+		LocalDate arriveTest = stringDateToLocalDate(arrivalSelect);
 		int totalDays = (int) ChronoUnit.DAYS.between(arriveTest, departTest);
 
 		BigDecimal bDTotalDays = new BigDecimal(totalDays);
 		System.out.println("\n--CONFIRMATION--");
 		System.out.println("Reservation ID: " + reservationDAO.getReservationId(Long.parseLong(siteReserved),
-				reservationDAO.stringToDateToSQL(arrivalSelect), reservationDAO.stringToDateToSQL(departureSelect),
-				nameOfReservation));
+				stringDateToLocalDate(arrivalSelect), stringDateToLocalDate(departureSelect), nameOfReservation));
 		System.out.println("Site " + siteReserved + " reserved for " + nameOfReservation);
 		System.out.println("From: " + arrivalSelect + " Until: " + departureSelect + "\n");
 		System.out.println("Days booked: " + bDTotalDays.toString());
@@ -354,45 +352,43 @@ public class CampgroundCLI {
 				+ String.format("%,.2f", campgroundDAO.getCampgroundCostByName(camp).multiply(bDTotalDays)));
 	}
 
-	public void inputArrivalDate() {
+	private void inputArrivalDate() {
 		try {
 			System.out.print("\nEnter Arrival date (YYYY/MM/DD) >>> ");
 			arrivalSelect = scan.nextLine();
-			System.out.println(
-					"Selected Arrival: " + printYearMonthName(reservationDAO.stringToDateToSQL(arrivalSelect)));
+			System.out.println("Selected Arrival: " + printYearMonthName(stringDateToLocalDate(arrivalSelect)));
 		} catch (Exception e) {
 			System.out.println("Invalid Date Entered");
 			inputArrivalDate();
 		}
 	}
 
-	public void inputDepartureDate() {
+	private void inputDepartureDate() {
 		try {
 			System.out.print("\nEnter Departure date (YYYY/MM/DD) >>> ");
 			departureSelect = scan.nextLine();
-			System.out.println(
-					"Selected Departure: " + printYearMonthName(reservationDAO.stringToDateToSQL(departureSelect)));
+			System.out.println("Selected Departure: " + printYearMonthName(stringDateToLocalDate(departureSelect)));
 		} catch (Exception e) {
 			System.out.println("Invalid Date");
 			inputDepartureDate();
 		}
 	}
 
-	public boolean inverseDateCheck() {
-		LocalDate departTest = reservationDAO.stringToDateToSQL(departureSelect);
-		LocalDate arriveTest = reservationDAO.stringToDateToSQL(arrivalSelect);
+	public boolean inverseDateCheck(String dep, String arr) {
+		LocalDate departTest = stringDateToLocalDate(dep);
+		LocalDate arriveTest = stringDateToLocalDate(arr);
 		int lengthOfStay = (int) ChronoUnit.DAYS.between(arriveTest, departTest);
 		if (lengthOfStay <= 0) {
 			System.out.println("\n--Please put dates in order--");
 			inputArrivalDate();
 			inputDepartureDate();
-			inverseDateCheck();
+			inverseDateCheck(dep, arr);
 			return false;
 		}
 		return true;
 	}
 
-	// Format Methods
+// Format Methods
 
 	public Map<Long, Integer> sortByValue(Map<Long, Integer> hm) {
 		List<Map.Entry<Long, Integer>> list = new LinkedList<Map.Entry<Long, Integer>>(hm.entrySet());
@@ -464,6 +460,17 @@ public class CampgroundCLI {
 		String month = splitted[1];
 		String day = splitted[2];
 		String result = monthMap.get(month) + " " + day + " " + year;
+		return result;
+	}
+
+	public LocalDate stringDateToLocalDate(String userInput) {
+		String[] arr = userInput.split("\\/|//-");
+		int year = Integer.parseInt(arr[0]);
+		int month = Integer.parseInt(arr[1]);
+		int day = Integer.parseInt(arr[2]);
+
+		LocalDate result = LocalDate.of(year, month, day);
+
 		return result;
 	}
 
