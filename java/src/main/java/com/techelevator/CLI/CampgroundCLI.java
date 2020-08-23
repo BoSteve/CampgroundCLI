@@ -158,7 +158,7 @@ public class CampgroundCLI {
 		this.MAIN_MENU_OPTIONS = allParks;
 	}
 
-	// !!!Park Methods
+// !!!Park Methods
 
 	private void printParkInfo(Park parks) {
 		System.out.println("\n" + parks.getParkName() + "\nLocation:\t" + parks.getParkLocation() + "\nEST.\t\t"
@@ -182,7 +182,7 @@ public class CampgroundCLI {
 		return camp;
 	}
 
-	// !!!Camp Methods
+// !!!Camp Methods
 
 	public String inputCampground() {
 		System.out.print("\nRent campground by ID >>> ");
@@ -216,10 +216,10 @@ public class CampgroundCLI {
 		}
 	}
 
-	// !!!Sites Methods
+// !!!Sites Methods
 
 	Map<Long, Integer> siteMapIDxPopularity = new HashMap<Long, Integer>();
-	
+
 	List<Long> siteIDsByDate = new ArrayList<Long>();
 	List<Long> siteIDByDateAndPopularity = new ArrayList<Long>();
 
@@ -228,7 +228,7 @@ public class CampgroundCLI {
 	List<Site> topFive = new ArrayList<Site>();
 
 	private void printAllSitesGivenDate(String camp, String arrivalSelect, String departureSelect) {
-		
+
 		sitesFromDateId = siteDAO.sitesByDate(reservationDAO.stringToDateToSQL(arrivalSelect),
 				reservationDAO.stringToDateToSQL(departureSelect), campgroundDAO.getCampgroundIdByName(camp));
 		Long id;
@@ -239,24 +239,24 @@ public class CampgroundCLI {
 
 		System.out.println("\n--Sites available between--\n" + arrivalSelect + " - " + departureSelect + "\n");
 
-		//holder.putall(sortby...)
+		//sorting a map
 		siteMapIDxPopularity = sortByValue(siteDAO.sortSitesByReservations(siteIDsByDate));
-		
+
 		// @TE what is Entry and entrySet
 		for (Entry<Long, Integer> en : siteMapIDxPopularity.entrySet()) {
 			siteIDByDateAndPopularity.add(en.getKey());
 		}
 
+		//takes ID, returns site
 		sitesByDateAndPopularity = siteDAO.getSitesById(siteIDByDateAndPopularity);
-		
+
+		//hardcoded way of always displaying 5 sites.
 		if (sitesByDateAndPopularity.size() == 0) {
-			printSiteInfo(sitesFromDateId, 5);
+			printSiteInfo(sitesFromDateId, 0, 4);
 		} else if (sitesByDateAndPopularity.size() > 0 && sitesByDateAndPopularity.size() < 5) {
 			printSiteInfoRent(sitesByDateAndPopularity);
-			sitesByDateAndPopularity.size(); 
-			printSiteInfo(sitesFromDateId, (5-sitesByDateAndPopularity.size()));
-		}
-		else {
+			printSiteInfo(sitesFromDateId, 1, (5 - sitesByDateAndPopularity.size()));
+		} else {
 			printSiteInfoRent(sitesByDateAndPopularity);
 		}
 	}
@@ -289,7 +289,7 @@ public class CampgroundCLI {
 		String result = "";
 		try {
 			System.out.println("--Top 5 Popular campsites!--");
-			System.out.println("ID.\tRentals\t\tMax Occup.\tMax RV length\tAccessible\tUtilities"); 
+			System.out.println("ID.\tRentals\t\tMax Occup.\tMax RV length\tAccessible\tUtilities");
 			for (int i = 0; i < 5; i++) {
 				Site sites = inputSite.get(i);
 				topFive.add(sites);
@@ -303,16 +303,16 @@ public class CampgroundCLI {
 	}
 
 	// when reservation count does not exist
-	private void printSiteInfo(List<Site> inputSite, int cap) {
+	private void printSiteInfo(List<Site> inputSite, int start, int cap) {
 		String result = "";
 		try {
 			System.out.println("--Road Less Travelled Campsites--");
 			System.out.println("ID.\tRentals\t\tMax Occup.\tMax RV length\tAccessible\tUtilities");
-			for (int i = 1; i <= cap; i++) {
+			for (int i = start; i <= cap; i++) {
 				Site sites = inputSite.get(i);
 				topFive.add(sites);
-				result = sites.getSiteId() + "\t" + 0 + "\t\t" + sites.getMaxOccupancy() + "\t\t"
-						+ sites.getMaxRvLength() + "\t\t" + sites.isItAccessible() + "\t\t" + sites.isUtilities();
+				result = sites.getSiteId() + "\t?\t\t" + sites.getMaxOccupancy() + "\t\t" + sites.getMaxRvLength()
+						+ "\t\t" + sites.isItAccessible() + "\t\t" + sites.isUtilities();
 				System.out.println(result);
 			}
 		} catch (Exception e) {
@@ -393,7 +393,7 @@ public class CampgroundCLI {
 	}
 
 	// Format Methods
- 
+
 	public Map<Long, Integer> sortByValue(Map<Long, Integer> hm) {
 		List<Map.Entry<Long, Integer>> list = new LinkedList<Map.Entry<Long, Integer>>(hm.entrySet());
 
