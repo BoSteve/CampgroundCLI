@@ -131,8 +131,9 @@ public class CLITests {
 	
 	@Test
 	public void inverseDateCheckTest() {
-		ReservationDAO reservationDAO = new JDBCReseravtionDAO(dataSource);
-		boolean actual = cc.inverseDateCheck();
+		String arr = "2020/08/02";
+		String dep = "2020/08/03";
+		boolean actual = cc.inverseDateCheck(dep, arr);
 		boolean expected = true;
 		Assert.assertEquals(expected, actual); 
 	}

@@ -56,8 +56,11 @@ public class JDBCReseravtionDAO implements ReservationDAO {
 		}
 		return result;
 	
+<<<<<<< HEAD
 	}
 	
+=======
+>>>>>>> ba6095ab38e0c30a5fdb51bb073fa1c54f7c6d8f
 	private Reservation rowFromReservation(SqlRowSet sqlReservation) {
 		Reservation reservationRow = new Reservation();
 		reservationRow.setNameOfReservation(sqlReservation.getString("name"));
