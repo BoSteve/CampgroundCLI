@@ -23,7 +23,7 @@ public class CLITests {
 			put("03", "Mar");
 			put("04", "Apr");
 			put("05", "May");
-			put("06", "Jun");
+			put("06", "Jun"); 
 			put("07", "Jul");
 			put("08", "Aug");
 			put("09", "Sep");

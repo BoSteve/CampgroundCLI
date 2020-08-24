@@ -72,7 +72,6 @@ public class JDBCSiteDAOTest {
 		Site newSite = new Site();
 
 		assertEquals(true, false);
-
 	}
 
 	@Test
