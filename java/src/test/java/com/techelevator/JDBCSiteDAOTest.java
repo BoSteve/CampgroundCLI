@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.techelevator.parks.model.Site;
 import com.techelevator.parks.model.jdbc.JDBCSiteDAO;
@@ -64,8 +65,28 @@ public class JDBCSiteDAOTest {
 				// TODO Auto-generated catch block
 				System.out.println("Database Connection Problems");
 			}
-
 		}
-}
 
+			@Test
+			public void sites_by_date() {
+			
+			Site newSite = new Site();
+			
+			assertEquals(true, false);
+			
+			}
+		
+			@Test
+			public void sorted_sites_by_reservations() {
+				
+				assertEquals(true, false);
+				
+			}
+				
+			@Test
+			public void get_sites_by_id() {
+			
+				assertEquals(true, false);
+}
+}
 

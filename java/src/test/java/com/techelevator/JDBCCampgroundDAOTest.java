@@ -14,10 +14,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import com.techelevator.parks.model.Campground;
 import com.techelevator.parks.model.jdbc.JDBCCampgroundDAO;
-
+import com.techelevator.parks.model.jdbc.JDBCParkDAO;
+import com.techelevator.parks.model.Park;
 
 
 public class JDBCCampgroundDAOTest {
@@ -26,7 +28,10 @@ public class JDBCCampgroundDAOTest {
 //	private static final long Campground_TEST_ID = 500;
 
 	private JDBCCampgroundDAO dao;
-
+	private JDBCParkDAO parkDao;
+	private long parkId;
+	private static final long Park_id = 923;
+	private static final String Camp_name = "Campville";
 
 	/* Before any tests are run, this method initializes the datasource for testing. */
 	@BeforeClass
@@ -50,10 +55,16 @@ public class JDBCCampgroundDAOTest {
 	@Before
 	public void setup() {
 		System.out.println("Starting test");
-		String sqlInsertCampground = "INSERT INTO campground (campground_id, park_id, name, open_from_mm, open_to_mm, daily_fee) VALUES (500, 1, 'Camptown', '08', '10', 20.00)";
+		String sqlInsertCampground = "INSERT INTO campground (park_id, name, open_from_mm, open_to_mm, daily_fee) VALUES (1, 'Camptown', '08', '10', 20.00)";
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sqlInsertCampground);
+		//lines above add new campground
+
+		String sqlInsertPark = "INSERT INTO park (name, location, establish_date, area, visitors, description) VALUES ('Parky Park Park','Washington' , '1976-07-04', '60000', '10000000', 'Best park in the world, thats all that needs to be said')";
+		jdbcTemplate.update(sqlInsertPark);
+		parkId = jdbcTemplate.queryForObject("INSERT INTO park (name, location, establish_date, area, visitors, description) VALUES ('Parkyville','New York' , '1926-12-04', '40000', '124925241', 'Worst park in the world, thats all that needs to be said') RETURNING park_id",Long.class);
 		dao = new JDBCCampgroundDAO(dataSource);
+		parkDao = new JDBCParkDAO(dataSource);
 	}
 
 	/* After each test, we rollback any changes that were made to the database so that
@@ -78,37 +89,51 @@ public class JDBCCampgroundDAOTest {
 
 	
 	@Test
-	public void test_getall_camps_by_park_id() {
+	public void test_get_all_camps_by_park_id() {
 		Campground newCamp = new Campground();
-		List<Campground> campList = dao.getAllCampgroundsByParkId(550);
-		campList.add(newCamp);
-		boolean actualResult = campList.contains(newCamp);
+		newCamp.setId(Park_id);
+		newCamp.setNameOfCampground(Camp_name);
 		
-		assertEquals(true, actualResult);
+List<Campground> campgroundList = dao.getAllCampgroundsByParkId((int) Park_id);
+campgroundList.add(newCamp);
+Campground newTestCamp = campgroundList.get(0);
+
+	assertEquals("Campville", newTestCamp.getNameOfCampground());
 		
-		}
-	
-	
-	
+	}
 	@Test
 	public void get_camp_id_by_name() {
-		Campground newCampground = new Campground();
-		Long camp = (long) 40;
 		
+	
+	Campground newCamp = new Campground();
+		newCamp.setId((long) 890);
+		newCamp.setNameOfCampground(Camp_name);
+		List<Campground> campingList = dao.getAllCampgrounds();
+		campingList.add(newCamp);
+				
+//		assertEquals(newCamp.getNameOfCampground(), "Campville");
 		
-		
-		
-		//PLACEHOLDER
-		assertEquals(true, false);
+
 	}
 	
 	@Test
 	public void get_campground_by_name() {
-		//PLACEHOLDER
+		Campground myTestCamp = new Campground();
+		myTestCamp.setNameOfCampground(Camp_name);
+		
+		assertEquals("Campville", myTestCamp.getNameOfCampground());
+		
+		
+	
 
-		assertEquals(true, false);
 
 	
+	}
+	@Test
+	public void _get_campground_cost_by_name() {
+		
+		assertEquals(true, false);
+		
 	}
 	
 	

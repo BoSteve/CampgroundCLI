@@ -49,7 +49,7 @@ public class JDBCReservationDAOTest {
 	public void setUp() throws Exception {
 		
 		System.out.println("Starting test");
-		String sqlInsertReservation = "INSERT INTO reservation (reservation_id, site_id, name, from_date, to_date, create_date) VALUES (50, 1, 'Steve and Kevin' , '2020-06-12' , '2020-08-22', now()) ";
+		String sqlInsertReservation = "INSERT INTO reservation (site_id, name, from_date, to_date, create_date) VALUES (1, 'Steve and Kevin' , '2020-06-12' , '2020-08-22', now()) ";
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.update(sqlInsertReservation);
 		dao = new JDBCReseravtionDAO(dataSource);
@@ -80,25 +80,54 @@ public class JDBCReservationDAOTest {
 	
 	@Test
 	public void create_reservation() {
-		Reservation testCreateRes = new Reservation();
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		int before = dao.getAllReservations().size();
 
-		testCreateRes.setNameOfReservation("Kevin and Steve");
+		jdbcTemplate.update("INSERT INTO reservation VALUES (923, 1, 'Happy time', '2020-12-12', '2020-12-25', now())");
+		
 
-		List<Reservation> saveResList = dao.getAllReservations();
-		saveResList.add(testCreateRes);
-		boolean actualResult = saveResList.contains(testCreateRes);
+		Long site = (long) 1;
+		String nameOfReservation = "KS";
+		LocalDate startDate = LocalDate.of(2020, 12, 03);
+		LocalDate endDate = LocalDate.of(2020, 12, 12);
+		LocalDate current = LocalDate.now();
+		
+		int after = dao.getAllReservations().size();
 
-		assertEquals(true, actualResult);
-	}
-	
-	@Test
-	public void date_to_sql() {
-//		LocalDate date = 2020-12-25;
+		dao.createReservation(site, startDate, endDate, nameOfReservation);
+		
+		
+		
+		assertEquals(before +1, after);
+		
+
+//		
+//		Long site = (long) 1;
+//		String nameOfReservation = "KS";
+//		LocalDate startDate = LocalDate.of(2020, 12, 03);
+//		LocalDate endDate = LocalDate.of(2020, 12, 12);
+//		LocalDate current = LocalDate.now();
+//		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+//		jdbcTemplate.update(createdRes, site, nameOfReservation, startDate, endDate, current);
+//		
+//		assertEquals("1", site);
 		
 	}
 	
 	@Test
 	public void get_reservation_id() {
+		Reservation testRes = new Reservation();
+		Long site = (long) 1;
+		String nameOfReservation = "KS";
+		LocalDate startDate = LocalDate.of(2020, 12, 03);
+		LocalDate endDate = LocalDate.of(2020, 12, 12);
+		LocalDate current = LocalDate.now();
+		dao.getReservationId(site, startDate, endDate, nameOfReservation);
+		int actualResult = dao.getAllReservations().size();
+		
+
+		assertEquals(45, actualResult);
 		
 //		Reservation reserve = dao.getReservationId(site, startDate, endDate, nameOfReservation)
 
